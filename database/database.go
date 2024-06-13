@@ -22,7 +22,7 @@ func InitDB() {
 
 	dbHost := os.Getenv("POSTGRES_HOST")
 	dbUser := os.Getenv("POSTGRES_USER")
-	dbPassword := os.Getenv("POSTGRES_PASS")
+	dbPassword := os.Getenv("POSTGRES_PASSWORD")
 	dbName := os.Getenv("POSTGRES_DB")
 	dbPort := os.Getenv("POSTGRES_PORT")
 
