@@ -1,6 +1,7 @@
-package main
+package database
 
 import (
+	"apcore/models"
 	"fmt"
 	"log"
 	"os"
@@ -13,7 +14,7 @@ import (
 var db *gorm.DB
 var err error
 
-func initDB() {
+func InitDB() {
 	err = godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading .env file")
@@ -35,6 +36,10 @@ func initDB() {
 	db.LogMode(true)
 }
 
-func getDB() *gorm.DB {
+func GetDB() *gorm.DB {
 	return db
+}
+
+func Migrate() {
+	db.AutoMigrate(&models.User{})
 }
