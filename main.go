@@ -3,6 +3,7 @@ package main
 import (
 	"apcore/controllers"
 	"apcore/database"
+	"apcore/middlewares"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,8 +21,14 @@ func main() {
 		})
 	})
 
-	router.POST("/users", controllers.CreateUser)
+	router.POST("/signup", controllers.CreateUser)
 	router.POST("/login", controllers.Login)
+
+	protected := router.Group("/")
+	protected.Use(middlewares.JWTAuthMiddleware())
+	protected.GET("/protected", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "This is a protected route"})
+	})
 
 	router.Run(":8000")
 }

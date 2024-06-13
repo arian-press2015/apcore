@@ -3,6 +3,7 @@ package controllers
 import (
 	"apcore/database"
 	"apcore/models"
+	"apcore/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -53,7 +54,11 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	token := "dummy-token"
+	token, err := utils.GenerateJWT(user.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
