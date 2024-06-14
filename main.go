@@ -17,7 +17,7 @@ func main() {
 	router := gin.Default()
 
 	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
+	router.Use(middlewares.TrackIdMiddleware())
 
 	router.Use(middlewares.ErrorHandler())
 
