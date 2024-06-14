@@ -27,14 +27,12 @@ func main() {
 		})
 	})
 
-	router.POST("/signup", controllers.CreateUser)
-	router.POST("/login", controllers.Login)
+	auth := router.Group("/auth")
+	auth.POST("/signup", controllers.CreateUser)
+	auth.POST("/signin", controllers.Login)
 
-	protected := router.Group("/")
-	protected.Use(middlewares.JWTAuthMiddleware())
-	protected.GET("/protected", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "This is a protected route"})
-	})
+	users := router.Group("/users")
+	users.GET("/", controllers.GetUsers)
 
 	adminRoutes := router.Group("/admin")
 	adminRoutes.Use(middlewares.JWTAuthMiddleware())
