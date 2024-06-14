@@ -14,6 +14,12 @@ func main() {
 
 	database.InitDB()
 	database.Migrate()
+	router := gin.Default()
+
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
+
+	router.Use(middlewares.ErrorHandler())
 
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
