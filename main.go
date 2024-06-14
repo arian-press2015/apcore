@@ -30,5 +30,11 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"message": "This is a protected route"})
 	})
 
+	adminRoutes := router.Group("/admin")
+	adminRoutes.Use(middlewares.JWTAuthMiddleware())
+	adminRoutes.GET("/admin-only", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "This is an admin-only route"})
+	})
+
 	router.Run(":8000")
 }
