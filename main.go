@@ -34,6 +34,11 @@ func main() {
 	users := router.Group("/users")
 	users.GET("/", controllers.GetUsers)
 
+	roles := router.Group("/")
+	roles.Use(middlewares.JWTAuthMiddleware())
+	roles.POST("/roles", controllers.CreateRole)
+	roles.GET("/roles", controllers.GetRoles)	
+
 	adminRoutes := router.Group("/admin")
 	adminRoutes.Use(middlewares.JWTAuthMiddleware())
 	adminRoutes.GET("/admin-only", func(c *gin.Context) {
