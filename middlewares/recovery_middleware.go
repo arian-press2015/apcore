@@ -13,11 +13,17 @@ func RecoveryMiddleware() gin.HandlerFunc {
 		defer func() {
 			if err := recover(); err != nil {
 				log.Printf("Recovered from panic: %v", err)
+				trackID, _ := c.Get("trackId")
 
-				trackId, _ := c.Get("trackId")
-				errorResponse := response.NewResponse(nil, "Internal Server Error", nil, http.StatusInternalServerError)
-				errorResponse.TrackId = trackId.(string)
-				c.JSON(http.StatusInternalServerError, errorResponse)
+				if resp, exists := c.Get("response"); exists {
+					responseInstance := resp.(*response.Response)
+					responseInstance.TrackId = trackID.(string)
+					c.JSON(responseInstance.StatusCode, responseInstance)
+				} else {
+					errorResponse := response.NewResponse(nil, "Internal Server Error", nil, http.StatusInternalServerError)
+					errorResponse.TrackId = trackID.(string)
+					c.JSON(http.StatusInternalServerError, errorResponse)
+				}
 				c.Abort()
 			}
 		}()
