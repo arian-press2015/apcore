@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
@@ -28,12 +30,21 @@ func InitDB() {
 
 	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s port=%s", dbHost, dbUser, dbName, dbPassword, dbPort)
 
-	db, err = gorm.Open("postgres", dbURI)
+	db, err = gorm.Open(postgres.Open(dbURI), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		log.Fatalf("Error connecting to database %v", err)
 	}
 
-	db.LogMode(true)
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("Failed to get database instance: %v", err)
+	}
+
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
 }
 
 func GetDB() *gorm.DB {
