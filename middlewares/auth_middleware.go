@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"apcore/response"
 	"apcore/utils"
 	"net/http"
 	"strings"
@@ -14,14 +15,14 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		tokenString := strings.TrimPrefix(tokenStringRaw, "Bearer ")
 
 		if tokenString == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token not provided"})
+			response.Error(c, nil, "Authorization token not provided", http.StatusUnauthorized)
 			c.Abort()
 			return
 		}
 
 		claims, err := utils.VerifyJWT(tokenString)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err})
+			response.Error(c, nil, "Internal Server Error", http.StatusUnauthorized)
 			c.Abort()
 			return
 		}

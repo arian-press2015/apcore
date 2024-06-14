@@ -3,6 +3,7 @@ package controllers
 import (
 	"apcore/database"
 	"apcore/models"
+	"apcore/response"
 	"net/http"
 	"strconv"
 
@@ -25,9 +26,9 @@ func GetUsers(c *gin.Context) {
 	}
 
 	if err := database.GetDB().Offset(offset).Limit(limit).Preload("Roles").Find(&users).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	response.Error(c, nil, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": users})
+	response.Success(c, users, "success", nil, http.StatusOK)
 }

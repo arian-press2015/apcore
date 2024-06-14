@@ -3,6 +3,7 @@ package controllers
 import (
 	"apcore/database"
 	"apcore/models"
+	"apcore/response"
 	"net/http"
 	"strconv"
 
@@ -12,16 +13,16 @@ import (
 func CreateRole(c *gin.Context) {
 	var role models.Role
 	if err := c.ShouldBindJSON(&role); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.Error(c, nil, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if err := database.GetDB().Create(&role).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.Error(c, nil, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, role)
+	response.Success(c, role, "success", nil, http.StatusOK)
 }
 
 func GetRoles(c *gin.Context) {
@@ -40,9 +41,9 @@ func GetRoles(c *gin.Context) {
 	}
 
 	if err := database.GetDB().Offset(offset).Limit(limit).Preload("Users").Find(&roles).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.Error(c, nil, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": roles})
+	response.Success(c, roles, "success", nil, http.StatusOK)
 }
