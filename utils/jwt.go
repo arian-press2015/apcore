@@ -1,26 +1,26 @@
 package utils
 
 import (
+	"apcore/config"
 	"log"
-	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/joho/godotenv"
 )
 
-var jwtSecret []byte
+var jwtKey []byte
 var jwtExpireAt time.Duration
-var jwtKey = []byte(jwtSecret)
+var err error
 
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatalf("Error loading .env file")
+	// }
 
-	jwtKey = []byte(os.Getenv("JWT_SECRET"))
-	expireDuration := os.Getenv("JWT_EXPIRE_AT")
+	jwtConfig := config.AppConfig.Jwt
+	jwtKey = []byte(jwtConfig.JwtSecret)
+	expireDuration := jwtConfig.JwtExpireAt
 
 	jwtExpireAt, err = time.ParseDuration(expireDuration)
 	if err != nil {

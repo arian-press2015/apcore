@@ -5,6 +5,7 @@ import (
 	"apcore/database"
 	"apcore/middlewares"
 	"apcore/routes"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,6 +26,8 @@ func main() {
 	router.Use(middlewares.ErrorHandler())
 
 	routes.SetupRoutes(router)
-
-	router.Run(":8000")
+	err := router.Run(":" + config.AppConfig.Port)
+	if err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
 }

@@ -1,13 +1,12 @@
 package database
 
 import (
+	"apcore/config"
 	"apcore/models"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -17,21 +16,11 @@ var db *gorm.DB
 var err error
 
 func InitDB() {
-	err = godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
-	dbHost := os.Getenv("POSTGRES_HOST")
-	dbUser := os.Getenv("POSTGRES_USER")
-	dbPassword := os.Getenv("POSTGRES_PASSWORD")
-	dbName := os.Getenv("POSTGRES_DB")
-	dbPort := os.Getenv("POSTGRES_PORT")
-
-	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s port=%s", dbHost, dbUser, dbName, dbPassword, dbPort)
+	dbConfig := config.AppConfig.Database
+	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s port=%s", dbConfig.Host, dbConfig.User, dbConfig.DBName, dbConfig.Password, dbConfig.Port)
 
 	db, err = gorm.Open(postgres.Open(dbURI), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(logger.Error),
 	})
 	if err != nil {
 		log.Fatalf("Error connecting to database %v", err)
