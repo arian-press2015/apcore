@@ -20,6 +20,7 @@ func main() {
 	router.Use(gin.Logger())
 
 	router.Use(middlewares.TrackIdMiddleware())
+	router.Use(middlewares.LocaleMiddleware())
 	router.Use(middlewares.RecoveryMiddleware())
 	router.Use(middlewares.ResponseHandlerMiddleware())
 

@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"apcore/messages"
 	"apcore/response"
 	"net/http"
 
@@ -11,12 +12,14 @@ func ResponseHandlerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 
+		locale := c.GetString("Locale")
 		resp, exists := c.Get("response")
 		if exists {
 			responseInstance := resp.(*response.Response)
 
 			trackId, _ := c.Get("trackId")
 			responseInstance.TrackId = trackId.(string)
+			responseInstance.Message = messages.TranslateMessage(responseInstance.Message, locale)
 
 			c.JSON(responseInstance.StatusCode, responseInstance)
 		} else {
