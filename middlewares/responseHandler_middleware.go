@@ -24,7 +24,7 @@ func ResponseHandlerMiddleware() gin.HandlerFunc {
 			c.JSON(responseInstance.StatusCode, responseInstance)
 		} else {
 			trackId, _ := c.Get("trackId")
-			errorResponse := response.NewResponse(nil, "Internal Server Error", nil, http.StatusInternalServerError)
+			errorResponse := response.NewResponse(nil, messages.MsgInternalServerError, nil, http.StatusInternalServerError)
 			errorResponse.TrackId = trackId.(string)
 			c.JSON(http.StatusInternalServerError, errorResponse)
 		}

@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"apcore/messages"
 	"apcore/response"
 	"log"
 	"net/http"
@@ -20,7 +21,7 @@ func RecoveryMiddleware() gin.HandlerFunc {
 					responseInstance.TrackId = trackID.(string)
 					c.JSON(responseInstance.StatusCode, responseInstance)
 				} else {
-					errorResponse := response.NewResponse(nil, "Internal Server Error", nil, http.StatusInternalServerError)
+					errorResponse := response.NewResponse(nil, messages.MsgInternalServerError, nil, http.StatusInternalServerError)
 					errorResponse.TrackId = trackID.(string)
 					c.JSON(http.StatusInternalServerError, errorResponse)
 				}

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"apcore/database"
+	"apcore/messages"
 	"apcore/models"
 	"apcore/response"
 	"apcore/utils"
@@ -46,21 +47,21 @@ func Login(c *gin.Context) {
 	}
 
 	if err := database.GetDB().Where("email = ?", input.Email).First(&user).Error; err != nil {
-		response.Error(c, nil, "Invalid email or password", http.StatusUnauthorized)
+		response.Error(c, nil, messages.MsgInvalidEmailPassword, http.StatusUnauthorized)
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		response.Error(c, nil, "Invalid email or password", http.StatusUnauthorized)
+		response.Error(c, nil, messages.MsgInvalidEmailPassword, http.StatusUnauthorized)
 		return
 	}
 
 	token, err := utils.GenerateJWT(user.Email)
 	if err != nil {
-		response.Error(c, nil, "Failed to generate token", http.StatusInternalServerError)
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 
 		return
 	}
 
-	response.Success(c, gin.H{"token": token}, "success", nil, http.StatusOK)
+	response.Success(c, gin.H{"token": token}, messages.MsgSuccessful, nil, http.StatusOK)
 }

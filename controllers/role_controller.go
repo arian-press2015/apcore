@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"apcore/database"
+	"apcore/messages"
 	"apcore/models"
 	"apcore/response"
 	"net/http"
@@ -18,7 +19,7 @@ func CreateRole(c *gin.Context) {
 	}
 
 	if err := database.GetDB().Create(&role).Error; err != nil {
-		response.Error(c, nil, "Internal Server Error", http.StatusInternalServerError)
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
 
@@ -41,9 +42,9 @@ func GetRoles(c *gin.Context) {
 	}
 
 	if err := database.GetDB().Offset(offset).Limit(limit).Preload("Users").Find(&roles).Error; err != nil {
-		response.Error(c, nil, "Internal Server Error", http.StatusInternalServerError)
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
 
-	response.Success(c, roles, "success", nil, http.StatusOK)
+	response.Success(c, roles, messages.MsgSuccessful, nil, http.StatusOK)
 }
