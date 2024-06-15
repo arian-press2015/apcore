@@ -1,7 +1,7 @@
 package main
 
 import (
-	"apcore/controllers"
+	"apcore/config"
 	"apcore/database"
 	"apcore/middlewares"
 	"apcore/routes"
