@@ -7,5 +7,4 @@ func SetupRoutes(router *gin.Engine) {
 	AuthRoutes(router)
 	UsersRoutes(router)
 	RolesRoutes(router)
-	AdminRoutes(router)
 }
