@@ -1,4 +1,4 @@
-package routes
+package controllers
 
 import (
 	"apcore/messages"
@@ -20,8 +20,6 @@ type PingMessage struct {
 // @Param locale header string true "Locale" Enums(en, fa)
 // @Success 200 {object} response.SwaggerResponse[PingMessage]
 // @Router /ping [get]
-func HealthCheckRoutes(router *gin.Engine) {
-	router.GET("/ping", func(c *gin.Context) {
-		response.Success(c, gin.H{"message": "pong"}, messages.MsgSuccessful, nil, http.StatusOK)
-	})
+func Ping(c *gin.Context) {
+	response.Success(c, gin.H{"message": "pong"}, messages.MsgSuccessful, nil, http.StatusOK)
 }

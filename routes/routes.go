@@ -3,7 +3,7 @@ package routes
 import "github.com/gin-gonic/gin"
 
 func SetupRoutes(router *gin.Engine) {
-	HealthCheckRoutes(router)
+	PingRoutes(router)
 	AuthRoutes(router)
 	UsersRoutes(router)
 	RolesRoutes(router)
