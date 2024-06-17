@@ -4,6 +4,7 @@ import (
 	"apcore/messages"
 	"apcore/response"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,6 +12,11 @@ import (
 func ResponseHandlerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
+
+		// responnse handler prevents serving static files, so I bypass it for swagger route
+		if strings.HasPrefix(c.Request.URL.Path, "/swagger/") {
+			return
+		}
 
 		locale := c.GetString("Locale")
 		resp, exists := c.Get("response")
