@@ -12,6 +12,22 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type SignupBody struct {
+	Username string `gorm:"unique;not null" json:"username" binding:"required"`
+	Email    string `gorm:"unique;not null" json:"email" binding:"required"`
+	Password string `gorm:"not null" json:"password" binding:"required"`
+	Roles    []models.Role `gorm:"many2many:user_roles;" json:"roles" binding:"required"`
+}
+
+// @Summary Signup route
+// @Description Creates new users
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param locale header string true "Locale" Enums(en, fa)
+// @Param user body SignupBody true "User Information"
+// @Success 201 {object} response.SwaggerResponse[models.User]
+// @Router /auth/signup [get]
 func CreateUser(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -34,12 +50,27 @@ func CreateUser(c *gin.Context) {
 	response.Success(c, user, "success", nil, http.StatusCreated)
 }
 
+type SigninMessage struct {
+	Token string `json:"token"`
+}
+
+type SigninBody struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+// @Summary Signin route
+// @Description Logs in the user
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param locale header string true "Locale" Enums(en, fa)
+// @Param user body SigninBody true "User Credentials"
+// @Success 200 {object} response.SwaggerResponse[SigninMessage]
+// @Router /auth/signin [get]
 func Login(c *gin.Context) {
 	var user models.User
-	var input struct {
-		Email    string `json:"email" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}
+	var input SigninBody
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.Error(c, nil, err.Error(), http.StatusBadRequest)
