@@ -1,11 +1,15 @@
 FROM golang:1.22.2-alpine
 
+RUN apk update && apk add --no-cache \
+    git \
+    gcc \
+    musl-dev
+
 WORKDIR /app
 
 COPY go.mod go.sum ./
 
-# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
-ENV GOPROXY="https://goproxy.io,direct"
+ENV GOPROXY=http://localhost:8081,direct
 RUN go mod download
 
 COPY . .
