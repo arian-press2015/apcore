@@ -1,4 +1,5 @@
-FROM golang:1.22.2-alpine
+# Stage 1: Build the application
+FROM golang:1.22.2-alpine AS builder
 
 RUN apk update && apk add --no-cache \
     git \
@@ -19,6 +20,15 @@ RUN swag init --parseDependency
 
 RUN go build -o main .
 
+# Stage 2: Create a minimal runtime image
+FROM alpine:3.20.0
+
+WORKDIR /app
+
+COPY --from=builder /app/main .
+
+# COPY --from=builder /app/docs ./docs
+
 EXPOSE 8080
 
-CMD ["/app/main"]
+CMD ["./main"]
