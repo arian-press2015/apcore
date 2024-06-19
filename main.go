@@ -37,7 +37,7 @@ func main() {
 
 	database.InitDB()
 	database.Migrate()
-	router := gin.Default()
+	// acl.InitACL()
 
 	router.Use(gin.Logger())
 
@@ -46,7 +46,7 @@ func main() {
 	router.Use(middlewares.RecoveryMiddleware())
 	router.Use(middlewares.ResponseHandlerMiddleware())
 
-	router.Use(middlewares.ErrorHandler())
+	// router.Use(authz.NewAuthorizer(acl.Enforcer))
 
 	routes.SetupRoutes(router)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
