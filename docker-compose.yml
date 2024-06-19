@@ -2,7 +2,10 @@ version: "3.8"
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      network: host
+    image: apcore
     ports:
       - "8080:8080"
     environment:
