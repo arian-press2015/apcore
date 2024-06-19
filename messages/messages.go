@@ -7,4 +7,6 @@ const (
 	MsgSuccessful           = "Successful"
 	MsgInvalidEmailPassword = "InvalidEmailOrPassword"
 	MsgNoAuthHeader         = "NoAuthHeader"
+	MsgFeatureNotFound      = "Feature not found"
+	MsgFeatureDisabled      = "Feature is disabled"
 )
