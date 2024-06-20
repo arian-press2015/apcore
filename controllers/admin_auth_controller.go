@@ -30,7 +30,7 @@ type AdminSigninBody struct {
 // @Param locale header string true "Locale" Enums(en, fa)
 // @Param user body SigninBody true "Admin Credentials"
 // @Success 200 {object} response.SwaggerResponse[SigninMessage]
-// @Router /admin/signin [get]
+// @Router /admin/signin [post]
 func AdminLogin(c *gin.Context) {
 	var admin models.Admin
 	var input AdminSigninBody
