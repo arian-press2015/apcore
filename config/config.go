@@ -30,7 +30,6 @@ func init() {
 	}
 
 	LoadConfig()
-	log.Println("hih")
 }
 
 func LoadConfig() {
