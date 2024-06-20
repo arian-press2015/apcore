@@ -3,6 +3,7 @@ package main
 import (
 	"apcore/config"
 	"apcore/database"
+	"apcore/logger"
 	"apcore/middlewares"
 	"apcore/routes"
 	"log"
@@ -34,6 +35,7 @@ import (
 // @name Authorization
 func main() {
 	router := gin.Default()
+	defer logger.Sync()
 
 	database.InitDB()
 	database.Migrate()
