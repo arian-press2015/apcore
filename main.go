@@ -41,20 +41,14 @@ func main() {
 	database.Migrate()
 	// acl.InitACL()
 
+	setupMiddlewares(router)
+
+func setupMiddlewares(router *gin.Engine) {
 	router.Use(gin.Logger())
 
 	router.Use(middlewares.TrackIdMiddleware())
 	router.Use(middlewares.LocaleMiddleware())
 	router.Use(middlewares.RecoveryMiddleware())
 	router.Use(middlewares.ResponseHandlerMiddleware())
-
 	// router.Use(authz.NewAuthorizer(acl.Enforcer))
-
-	routes.SetupRoutes(router)
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	err := router.Run(":" + config.AppConfig.Port)
-	if err != nil {
-		log.Fatalf("Server failed to start: %v", err)
-	}
 }
