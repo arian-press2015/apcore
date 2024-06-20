@@ -8,11 +8,7 @@ import (
 	"apcore/routes"
 	"log"
 
-	_ "apcore/docs"
-
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 // @title APCore API
@@ -42,6 +38,14 @@ func main() {
 	// acl.InitACL()
 
 	setupMiddlewares(router)
+
+	routes.SetupRoutes(router, database.GetDB())
+
+	err := router.Run(":" + config.AppConfig.Port)
+	if err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
+}
 
 func setupMiddlewares(router *gin.Engine) {
 	router.Use(gin.Logger())
