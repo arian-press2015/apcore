@@ -37,22 +37,11 @@ func main() {
 	database.Migrate()
 	// acl.InitACL()
 
-	setupMiddlewares(router)
-
+	middlewares.SetupMiddlewares(router)
 	routes.SetupRoutes(router, database.GetDB())
 
 	err := router.Run(":" + config.AppConfig.Port)
 	if err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
-}
-
-func setupMiddlewares(router *gin.Engine) {
-	router.Use(gin.Logger())
-
-	router.Use(middlewares.TrackIdMiddleware())
-	router.Use(middlewares.LocaleMiddleware())
-	router.Use(middlewares.RecoveryMiddleware())
-	router.Use(middlewares.ResponseHandlerMiddleware())
-	// router.Use(authz.NewAuthorizer(acl.Enforcer))
 }
