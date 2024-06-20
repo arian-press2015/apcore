@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"apcore/database"
 	"apcore/messages"
 	"apcore/models"
 	"apcore/response"
+	"apcore/services"
 	"apcore/utils"
 	"net/http"
 
@@ -13,10 +13,18 @@ import (
 )
 
 type SignupBody struct {
-	Username string `gorm:"unique;not null" json:"username" binding:"required"`
-	Email    string `gorm:"unique;not null" json:"email" binding:"required"`
-	Password string `gorm:"not null" json:"password" binding:"required"`
+	Username string        `gorm:"unique;not null" json:"username" binding:"required"`
+	Email    string        `gorm:"unique;not null" json:"email" binding:"required"`
+	Password string        `gorm:"not null" json:"password" binding:"required"`
 	Roles    []models.Role `gorm:"many2many:user_roles;" json:"roles" binding:"required"`
+}
+
+type AuthController struct {
+	service services.UserService
+}
+
+func NewAuthController(service services.UserService) *AuthController {
+	return &AuthController{service}
 }
 
 // @Summary Signup route
@@ -28,7 +36,7 @@ type SignupBody struct {
 // @Param user body SignupBody true "User Information"
 // @Success 201 {object} response.SwaggerResponse[models.User]
 // @Router /auth/signup [get]
-func CreateUser(c *gin.Context) {
+func (ctrl *AuthController) CreateUser(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		response.Error(c, nil, err.Error(), http.StatusBadRequest)
@@ -42,7 +50,7 @@ func CreateUser(c *gin.Context) {
 	}
 	user.Password = string(hashedPassword)
 
-	if err := database.GetDB().Create(&user).Error; err != nil {
+	if err := ctrl.service.CreateUser(&user); err != nil {
 		response.Error(c, nil, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -68,8 +76,8 @@ type SigninBody struct {
 // @Param user body SigninBody true "User Credentials"
 // @Success 200 {object} response.SwaggerResponse[SigninMessage]
 // @Router /auth/signin [get]
-func Login(c *gin.Context) {
-	var user models.User
+func (ctrl *AuthController) Login(c *gin.Context) {
+	var user *models.User
 	var input SigninBody
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -77,7 +85,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	if err := database.GetDB().Where("email = ?", input.Email).First(&user).Error; err != nil {
+	user, err := ctrl.service.GetUserByUsername(input.Email)
+	if err != nil {
 		response.Error(c, nil, messages.MsgInvalidEmailPassword, http.StatusUnauthorized)
 		return
 	}

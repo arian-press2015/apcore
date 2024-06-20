@@ -8,7 +8,7 @@ import (
 
 type UserRepository interface {
 	CreateUser(user *models.User) error
-	GetUsers(offset int, limit int) ([]models.User, error) 
+	GetUsers(offset int, limit int) ([]models.User, error)
 	GetUserByID(id uint) (*models.User, error)
 	GetUserByUsername(username string) (*models.User, error)
 	UpdateUser(user *models.User) error
@@ -26,7 +26,7 @@ func (r *userRepository) CreateUser(user *models.User) error {
 	return r.db.Create(user).Error
 }
 
-func (r *userRepository) GetUsers(offset int, limit int) ([]models.User,error ) {
+func (r *userRepository) GetUsers(offset int, limit int) ([]models.User, error) {
 	var users []models.User
 	err := r.db.Offset(offset).Limit(limit).Find(&users).Error
 	if err != nil {
