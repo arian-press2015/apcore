@@ -1,18 +1,24 @@
 package controllers
 
 import (
-	"apcore/database"
 	"apcore/messages"
-	"apcore/models"
 	"apcore/response"
+	"apcore/services"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetUsers(c *gin.Context) {
-	var users []models.User
+type UserController struct {
+	service services.UserService
+}
+
+func NewUserController(service services.UserService) *UserController {
+	return &UserController{service}
+}
+
+func (ctrl *UserController) GetUsers(c *gin.Context) {
 	offsetStr := c.Query("offset")
 	limitStr := c.Query("limit")
 
@@ -26,7 +32,8 @@ func GetUsers(c *gin.Context) {
 		limit = 10
 	}
 
-	if err := database.GetDB().Offset(offset).Limit(limit).Preload("Roles").Find(&users).Error; err != nil {
+	users, err := ctrl.service.GetUsers(offset, limit)
+	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}

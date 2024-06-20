@@ -9,10 +9,10 @@ import (
 	"gorm.io/gorm"
 )
 
-func SetupRoutes(router *gin.Engine) {
+func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	PingRoutes(router)
 	AuthRoutes(router)
-	UsersRoutes(router)
+	UsersRoutes(router, db)
 	RolesRoutes(router)
 	AdminRoutes(router)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
