@@ -3,8 +3,6 @@ package middlewares
 import "github.com/gin-gonic/gin"
 
 func SetupMiddlewares(router *gin.Engine) {
-	router.Use(gin.Logger())
-
 	router.Use(TrackIdMiddleware())
 	router.Use(LocaleMiddleware())
 	router.Use(RecoveryMiddleware())
