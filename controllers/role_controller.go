@@ -1,24 +1,32 @@
 package controllers
 
 import (
-	"apcore/database"
 	"apcore/messages"
 	"apcore/models"
 	"apcore/response"
+	"apcore/services"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
-func CreateRole(c *gin.Context) {
+type RoleController struct {
+	service services.RoleService
+}
+
+func NewRoleController(service services.RoleService) *RoleController {
+	return &RoleController{service}
+}
+
+func (ctrl *RoleController) CreateRole(c *gin.Context) {
 	var role models.Role
 	if err := c.ShouldBindJSON(&role); err != nil {
 		response.Error(c, nil, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := database.GetDB().Create(&role).Error; err != nil {
+	if err := ctrl.service.CreateRole(&role); err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -26,8 +34,7 @@ func CreateRole(c *gin.Context) {
 	response.Success(c, role, "success", nil, http.StatusOK)
 }
 
-func GetRoles(c *gin.Context) {
-	var roles []models.Role
+func (ctrl *RoleController) GetRoles(c *gin.Context) {
 	offsetStr := c.Query("offset")
 	limitStr := c.Query("limit")
 
@@ -41,7 +48,8 @@ func GetRoles(c *gin.Context) {
 		limit = 10
 	}
 
-	if err := database.GetDB().Offset(offset).Limit(limit).Preload("Users").Find(&roles).Error; err != nil {
+	roles, err := ctrl.service.GetRoles(offset, limit)
+	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}

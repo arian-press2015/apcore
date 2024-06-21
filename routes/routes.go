@@ -9,7 +9,7 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	PingRoutes(router)
 	AuthRoutes(router, db)
 	UsersRoutes(router, db)
-	RolesRoutes(router)
+	RolesRoutes(router, db)
 	AdminRoutes(router)
 	SwaggerRoutes(router)
 }
