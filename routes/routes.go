@@ -10,6 +10,6 @@ func SetupRoutes(router *gin.Engine, db *gorm.DB) {
 	AuthRoutes(router, db)
 	UsersRoutes(router, db)
 	RolesRoutes(router, db)
-	AdminRoutes(router)
+	AdminAuthRoutes(router, db)
 	SwaggerRoutes(router)
 }

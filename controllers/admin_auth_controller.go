@@ -1,12 +1,11 @@
 package controllers
 
 import (
-	"apcore/database"
 	"apcore/messages"
 	"apcore/models"
 	"apcore/response"
+	"apcore/services"
 	"apcore/utils"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,6 +21,14 @@ type AdminSigninBody struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type AdminAuthController struct {
+	service services.AdminService
+}
+
+func NewAdminAuthController(service services.AdminService) *AdminAuthController {
+	return &AdminAuthController{service}
+}
+
 // @Summary Admin signin route
 // @Description Logs in the admin
 // @Tags admin
@@ -31,8 +38,8 @@ type AdminSigninBody struct {
 // @Param user body SigninBody true "Admin Credentials"
 // @Success 200 {object} response.SwaggerResponse[SigninMessage]
 // @Router /admin/signin [post]
-func AdminLogin(c *gin.Context) {
-	var admin models.Admin
+func (ctrl *AdminAuthController) AdminLogin(c *gin.Context) {
+	var admin *models.Admin
 	var input AdminSigninBody
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -40,14 +47,11 @@ func AdminLogin(c *gin.Context) {
 		return
 	}
 
-	if err := database.GetDB().Where("email = ?", input.Email).First(&admin).Error; err != nil {
+	admin, err := ctrl.service.GetAdminByName(input.Email)
+	if err != nil {
 		response.Error(c, nil, messages.MsgInvalidEmailPassword, http.StatusUnauthorized)
 		return
 	}
-
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
-
-	fmt.Println(string(hashedPassword))
 
 	if err := bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(input.Password)); err != nil {
 		response.Error(c, nil, messages.MsgInvalidEmailPassword, http.StatusUnauthorized)
