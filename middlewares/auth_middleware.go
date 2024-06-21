@@ -3,7 +3,7 @@ package middlewares
 import (
 	"apcore/messages"
 	"apcore/response"
-	"apcore/utils"
+	"apcore/utils/jwt"
 	"net/http"
 	"strings"
 

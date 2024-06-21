@@ -5,7 +5,7 @@ import (
 	"apcore/models"
 	"apcore/response"
 	"apcore/services"
-	"apcore/utils"
+	"apcore/utils/jwt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
