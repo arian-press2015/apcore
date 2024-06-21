@@ -41,5 +41,8 @@ func GetDB() *gorm.DB {
 }
 
 func Migrate() {
+	if err := db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"").Error; err != nil {
+		log.Fatalf("Failed to create uuid-ossp extension: %v", err)
+	}
 	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Admin{}, &models.Feature{})
 }
