@@ -3,20 +3,13 @@ package routes
 import (
 	"apcore/controllers"
 	"apcore/middlewares"
-	"apcore/repositories"
-	"apcore/services"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func RolesRoutes(router *gin.Engine, db *gorm.DB) {
-	roleRepository := repositories.NewRoleRepository(db)
-	roleService := services.NewRoleService(roleRepository)
-	roleController := controllers.NewRoleController(roleService)
-
+func RolesRoutes(router *gin.Engine, ctrl *controllers.RoleController, jwtAuthMiddleware *middlewares.JWTAuthMiddleware) {
 	roles := router.Group("/")
-	roles.Use(middlewares.JWTAuthMiddleware())
-	roles.POST("/roles", roleController.CreateRole)
-	roles.GET("/roles", roleController.GetRoles)
+	roles.Use(jwtAuthMiddleware.Middleware())
+	roles.POST("/roles", ctrl.CreateRole)
+	roles.GET("/roles", ctrl.GetRoles)
 }

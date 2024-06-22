@@ -21,10 +21,11 @@ type SignupBody struct {
 
 type AuthController struct {
 	service services.UserService
+	jwtService *jwt.JWTService
 }
 
-func NewAuthController(service services.UserService) *AuthController {
-	return &AuthController{service}
+func NewAuthController(service services.UserService, jwtService *jwt.JWTService) *AuthController {
+	return &AuthController{service, jwtService}
 }
 
 // @Summary Signup route
@@ -96,7 +97,7 @@ func (ctrl *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateJWT(user.Email)
+	token, err := ctrl.jwtService.GenerateJWT(user.Email)
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 

@@ -2,18 +2,12 @@ package routes
 
 import (
 	"apcore/controllers"
-	"apcore/repositories"
-	"apcore/services"
+	"apcore/middlewares"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func UsersRoutes(router *gin.Engine, db *gorm.DB) {
-	userRepository := repositories.NewUserRepository(db)
-	userService := services.NewUserService(userRepository)
-	userController := controllers.NewUserController(userService)
-
+func UsersRoutes(router *gin.Engine, ctrl *controllers.UserController, jwtAuthMiddleware *middlewares.JWTAuthMiddleware) {
 	users := router.Group("/users")
-	users.GET("", userController.GetUsers)
+	users.GET("", ctrl.GetUsers)
 }

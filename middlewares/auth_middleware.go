@@ -10,7 +10,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func JWTAuthMiddleware() gin.HandlerFunc {
+type JWTAuthMiddleware struct {
+	jwtService *jwt.JWTService
+}
+
+func NewJWTAuthMiddleware(jwtService *jwt.JWTService) *JWTAuthMiddleware {
+	return &JWTAuthMiddleware{jwtService}
+}
+
+func (jam *JWTAuthMiddleware) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenStringRaw := c.GetHeader("Authorization")
 		tokenString := strings.TrimPrefix(tokenStringRaw, "Bearer ")
@@ -21,7 +29,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		claims, err := utils.VerifyJWT(tokenString)
+		claims, err := jam.jwtService.VerifyJWT(tokenString)
 		if err != nil {
 			response.Error(c, nil, messages.MsgUnauthorized, http.StatusUnauthorized)
 			c.Abort()

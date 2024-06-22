@@ -2,18 +2,12 @@ package routes
 
 import (
 	"apcore/controllers"
-	"apcore/repositories"
-	"apcore/services"
+	"apcore/middlewares"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func AdminAuthRoutes(router *gin.Engine, db *gorm.DB) {
-	adminRepository := repositories.NewAdminRepository(db)
-	adminService := services.NewAdminService(adminRepository)
-	adminController := controllers.NewAdminAuthController(adminService)
-
+func AdminAuthRoutes(router *gin.Engine, ctrl *controllers.AdminAuthController, jwtAuthMiddleware *middlewares.JWTAuthMiddleware) {
 	auth := router.Group("/admin")
-	auth.POST("/signin", adminController.AdminLogin)
+	auth.POST("/signin", ctrl.AdminLogin)
 }

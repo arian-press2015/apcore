@@ -1,31 +1,15 @@
-package utils
+package jwt
 
 import (
 	"apcore/config"
-	"log"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-var jwtKey []byte
-var jwtExpireAt time.Duration
-var err error
-
-func init() {
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatalf("Error loading .env file")
-	// }
-
-	jwtConfig := config.AppConfig.Jwt
-	jwtKey = []byte(jwtConfig.JwtSecret)
-	expireDuration := jwtConfig.JwtExpireAt
-
-	jwtExpireAt, err = time.ParseDuration(expireDuration)
-	if err != nil {
-		log.Fatalf("Invalid JWT_EXPIRE_AT duration: %v", err)
-	}
+type JWTService struct {
+	jwtKey      []byte
+	jwtExpireAt time.Duration
 }
 
 type Claims struct {
@@ -33,8 +17,21 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func GenerateJWT(email string) (string, error) {
-	expirationTime := time.Now().Add(jwtExpireAt)
+func NewJWTService(cfg *config.Config) (*JWTService, error) {
+	jwtKey := []byte(cfg.Jwt.JwtSecret)
+	expireDuration, err := time.ParseDuration(cfg.Jwt.JwtExpireAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return &JWTService{
+		jwtKey:      jwtKey,
+		jwtExpireAt: expireDuration,
+	}, nil
+}
+
+func (s *JWTService) GenerateJWT(email string) (string, error) {
+	expirationTime := time.Now().Add(s.jwtExpireAt)
 	claims := &Claims{
 		Email: email,
 		StandardClaims: jwt.StandardClaims{
@@ -43,7 +40,7 @@ func GenerateJWT(email string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
+	tokenString, err := token.SignedString(s.jwtKey)
 	if err != nil {
 		return "", err
 	}
@@ -51,10 +48,10 @@ func GenerateJWT(email string) (string, error) {
 	return tokenString, nil
 }
 
-func VerifyJWT(tokenString string) (*Claims, error) {
+func (s *JWTService) VerifyJWT(tokenString string) (*Claims, error) {
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
+		return s.jwtKey, nil
 	})
 
 	if err != nil {

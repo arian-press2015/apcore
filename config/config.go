@@ -5,6 +5,11 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"go.uber.org/fx"
+)
+
+var Module = fx.Options(
+	fx.Provide(NewConfig),
 )
 
 type Config struct {
@@ -22,29 +27,25 @@ type Config struct {
 	}
 }
 
-var AppConfig Config
-
-func init() {
+func NewConfig() *Config {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("No .env file found")
 	}
 
-	LoadConfig()
-}
-
-func LoadConfig() {
-	AppConfig = Config{}
+	config := &Config{}
 	// app config
-	AppConfig.Port = getEnv("PORT", "8080")
+	config.Port = getEnv("PORT", "8080")
 	// database config
-	AppConfig.Database.User = getEnv("POSTGRES_USER", "root")
-	AppConfig.Database.Password = getEnv("POSTGRES_PASSWORD", "password")
-	AppConfig.Database.DBName = getEnv("POSTGRES_DB", "mydatabase")
-	AppConfig.Database.Host = getEnv("POSTGRES_HOST", "localhost")
-	AppConfig.Database.Port = getEnv("POSTGRES_PORT", "3306")
+	config.Database.User = getEnv("POSTGRES_USER", "root")
+	config.Database.Password = getEnv("POSTGRES_PASSWORD", "password")
+	config.Database.DBName = getEnv("POSTGRES_DB", "mydatabase")
+	config.Database.Host = getEnv("POSTGRES_HOST", "localhost")
+	config.Database.Port = getEnv("POSTGRES_PORT", "5432")
 	// jwt config
-	AppConfig.Jwt.JwtSecret = getEnv("JWT_SECRET", "defaultsecret")
-	AppConfig.Jwt.JwtExpireAt = getEnv("JWT_EXPIRE_AT", "24h")
+	config.Jwt.JwtSecret = getEnv("JWT_SECRET", "defaultsecret")
+	config.Jwt.JwtExpireAt = getEnv("JWT_EXPIRE_AT", "24h")
+
+	return config
 }
 
 func getEnv(key, fallback string) string {

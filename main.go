@@ -2,13 +2,20 @@ package main
 
 import (
 	"apcore/config"
+	"apcore/controllers"
 	"apcore/database"
 	"apcore/logger"
 	"apcore/middlewares"
+	"apcore/repositories"
 	"apcore/routes"
-	"log"
+	"apcore/services"
+	"apcore/utils"
+	"context"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/fx"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 // @title APCore API
@@ -29,19 +36,48 @@ import (
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
+
 func main() {
-	router := gin.Default()
-	defer logger.Sync()
+	app := fx.New(
+		config.Module,
+		database.Module,
+		logger.Module,
+		utils.Module,
+		routes.Module,
+		middlewares.Module,
+		repositories.Module,
+		services.Module,
+		controllers.Module,
+		fx.Invoke(registerHooks),
+	)
 
-	database.InitDB()
-	database.Migrate()
-	// acl.InitACL()
+	app.Run()
+}
 
-	middlewares.SetupMiddlewares(router)
-	routes.SetupRoutes(router, database.GetDB())
-
-	err := router.Run(":" + config.AppConfig.Port)
-	if err != nil {
-		log.Fatalf("Server failed to start: %v", err)
-	}
+func registerHooks(
+	lc fx.Lifecycle,
+	db *gorm.DB,
+	router *gin.Engine,
+	middlewares *middlewares.Middlewares,
+	routes *routes.Routes,
+	cfg *config.Config,
+	logger *logger.Logger,
+) {
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			database.Migrate(db)
+			middlewares.SetupMiddlewares(router)
+			routes.SetupRoutes(router)
+			go func() {
+				if err := router.Run(":" + cfg.Port); err != nil {
+					logger.Fatal("Server failed to start", zap.Error(err))
+				}
+			}()
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			logger.Sync()
+			return nil
+		},
+	})
 }

@@ -1,11 +1,29 @@
 package middlewares
 
-import "github.com/gin-gonic/gin"
+import (
+	"apcore/logger"
 
-func SetupMiddlewares(router *gin.Engine) {
+	"github.com/gin-gonic/gin"
+	"go.uber.org/fx"
+)
+
+var Module = fx.Options(
+	fx.Provide(NewMiddlewares),
+	fx.Provide(NewJWTAuthMiddleware),
+)
+
+type Middlewares struct {
+	logger *logger.Logger
+}
+
+func NewMiddlewares(logger *logger.Logger) *Middlewares {
+	return &Middlewares{logger: logger}
+}
+
+func (m *Middlewares) SetupMiddlewares(router *gin.Engine) {
 	router.Use(TrackIdMiddleware())
 	router.Use(LocaleMiddleware())
-	router.Use(RecoveryMiddleware())
+	router.Use(RecoveryMiddleware(m.logger))
 	router.Use(ResponseHandlerMiddleware())
 	// router.Use(authz.NewAuthorizer(acl.Enforcer))
 }

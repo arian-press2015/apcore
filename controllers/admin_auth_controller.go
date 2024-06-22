@@ -23,10 +23,11 @@ type AdminSigninBody struct {
 
 type AdminAuthController struct {
 	service services.AdminService
+	jwtService *jwt.JWTService
 }
 
-func NewAdminAuthController(service services.AdminService) *AdminAuthController {
-	return &AdminAuthController{service}
+func NewAdminAuthController(service services.AdminService, jwtService *jwt.JWTService) *AdminAuthController {
+	return &AdminAuthController{service,jwtService}
 }
 
 // @Summary Admin signin route
@@ -58,7 +59,7 @@ func (ctrl *AdminAuthController) AdminLogin(c *gin.Context) {
 		return
 	}
 
-	token, err := utils.GenerateJWT(admin.Email)
+	token, err := ctrl.jwtService.GenerateJWT(admin.Email)
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 

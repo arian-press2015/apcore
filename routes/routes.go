@@ -1,15 +1,39 @@
 package routes
 
 import (
+	"apcore/controllers"
+	"apcore/middlewares"
+
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
+	"go.uber.org/fx"
 )
 
-func SetupRoutes(router *gin.Engine, db *gorm.DB) {
-	PingRoutes(router)
-	AuthRoutes(router, db)
-	UsersRoutes(router, db)
-	RolesRoutes(router, db)
-	AdminAuthRoutes(router, db)
+var Module = fx.Options(
+	fx.Provide(NewRouter),
+	fx.Provide(NewRoutes),
+)
+
+func NewRouter() *gin.Engine {
+	return gin.Default()
+}
+
+type Routes struct {
+	controllers       *controllers.Controllers
+	jwtAuthMiddleware *middlewares.JWTAuthMiddleware
+}
+
+func NewRoutes(controllers *controllers.Controllers, jwtAuthMiddleware *middlewares.JWTAuthMiddleware) *Routes {
+	return &Routes{
+		controllers:       controllers,
+		jwtAuthMiddleware: jwtAuthMiddleware,
+	}
+}
+
+func (r *Routes) SetupRoutes(router *gin.Engine) {
+	PingRoutes(router, r.controllers.PingController)
+	AuthRoutes(router, r.controllers.AuthController, r.jwtAuthMiddleware)
+	UsersRoutes(router, r.controllers.UserController, r.jwtAuthMiddleware)
+	RolesRoutes(router, r.controllers.RoleController, r.jwtAuthMiddleware)
+	AdminAuthRoutes(router, r.controllers.AdminAuthController, r.jwtAuthMiddleware)
 	SwaggerRoutes(router)
 }

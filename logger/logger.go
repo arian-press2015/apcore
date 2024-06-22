@@ -7,8 +7,14 @@ import (
 	"time"
 
 	"github.com/olivere/elastic/v7"
+	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+)
+
+var Module = fx.Options(
+	fx.Provide(NewElasticClient),
+	fx.Provide(NewLogger),
 )
 
 type ElasticHook struct {
@@ -44,18 +50,23 @@ func (hook *ElasticHook) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-var logger *zap.Logger
-
-func init() {
+func NewElasticClient() (*elastic.Client, error) {
 	client, err := elastic.NewClient(
 		elastic.SetURL("http://localhost:9200"),
 		elastic.SetSniff(false),
 		elastic.SetHealthcheck(false),
 	)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to create elastic client: %v", err))
+		return nil, fmt.Errorf("failed to create elastic client: %w", err)
 	}
+	return client, nil
+}
 
+type Logger struct {
+	zapLogger *zap.Logger
+}
+
+func NewLogger(client *elastic.Client) (*Logger, error) {
 	consoleCore := zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), zapcore.AddSync(os.Stdout), zapcore.DebugLevel)
 
 	elasticHook := NewElasticHook(client, "apcore_logs", "localhost")
@@ -63,29 +74,30 @@ func init() {
 
 	core := zapcore.NewTee(consoleCore, elasticCore)
 
-	logger = zap.New(core, zap.AddCaller())
+	zapLogger := zap.New(core, zap.AddCaller())
+	return &Logger{zapLogger}, nil
 }
 
-func Info(msg string, fields ...zap.Field) {
-	logger.Info(msg, fields...)
+func (l *Logger) Sync() {
+	_ = l.zapLogger.Sync()
 }
 
-func Error(msg string, fields ...zap.Field) {
-	logger.Error(msg, fields...)
+func (l *Logger) Info(msg string, fields ...zap.Field) {
+	l.zapLogger.Info(msg, fields...)
 }
 
-func Debug(msg string, fields ...zap.Field) {
-	logger.Debug(msg, fields...)
+func (l *Logger) Error(msg string, fields ...zap.Field) {
+	l.zapLogger.Error(msg, fields...)
 }
 
-func Warn(msg string, fields ...zap.Field) {
-	logger.Warn(msg, fields...)
+func (l *Logger) Debug(msg string, fields ...zap.Field) {
+	l.zapLogger.Debug(msg, fields...)
 }
 
-func Fatal(msg string, fields ...zap.Field) {
-	logger.Fatal(msg, fields...)
+func (l *Logger) Warn(msg string, fields ...zap.Field) {
+	l.zapLogger.Warn(msg, fields...)
 }
 
-func Sync() {
-	_ = logger.Sync()
+func (l *Logger) Fatal(msg string, fields ...zap.Field) {
+	l.zapLogger.Fatal(msg, fields...)
 }
