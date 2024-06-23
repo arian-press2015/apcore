@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"apcore/utils/fileupload"
 	"apcore/utils/jwt"
 	"apcore/utils/keystore"
 	"apcore/utils/otp"
@@ -12,4 +13,6 @@ var Module = fx.Options(
 	fx.Provide(jwt.NewJWTService),
 	fx.Provide(otp.NewOTPService),
 	fx.Provide(keystore.NewKeyStore),
+	fx.Provide(fileupload.NewLocalFileUploader),
+	fx.Provide(fileupload.NewExtensionValidator),
 )
