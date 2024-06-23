@@ -36,4 +36,12 @@ func (r *Routes) SetupRoutes(router *gin.Engine) {
 	RolesRoutes(router, r.controllers.RoleController, r.jwtAuthMiddleware)
 	AdminAuthRoutes(router, r.controllers.AdminAuthController, r.jwtAuthMiddleware)
 	SwaggerRoutes(router)
+
+	router.NoMethod(func(c *gin.Context) {
+		response.Error(c, nil, messages.MsgMethodNotAllowed, http.StatusMethodNotAllowed)
+	})
+
+	router.NoRoute(func(c *gin.Context) {
+		response.Error(c, nil, messages.MsgNotFound, http.StatusNotFound)
+	})
 }
