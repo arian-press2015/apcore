@@ -9,6 +9,7 @@ var EnglishMessages = map[string]string{
 	"NoAuthHeader":           "authorization token not provided",
 	"Feature not found":      "feature not found",
 	"Feature is disabled":    "requested feature is disabled, please contact support",
+	"Method is not allowed":  "requested method is not allowed",
 	// success
 	"Successful": "operation finished successfully",
 }

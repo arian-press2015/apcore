@@ -44,4 +44,6 @@ func (r *Routes) SetupRoutes(router *gin.Engine) {
 	router.NoRoute(func(c *gin.Context) {
 		response.Error(c, nil, messages.MsgNotFound, http.StatusNotFound)
 	})
+
+	router.Static("/public", "./public")
 }

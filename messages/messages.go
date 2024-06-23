@@ -9,4 +9,5 @@ const (
 	MsgNoAuthHeader         = "NoAuthHeader"
 	MsgFeatureNotFound      = "Feature not found"
 	MsgFeatureDisabled      = "Feature is disabled"
+	MsgMethodNotAllowed		= "Method is not allowed"
 )

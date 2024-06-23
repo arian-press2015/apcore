@@ -14,7 +14,10 @@ func ResponseHandlerMiddleware() gin.HandlerFunc {
 		c.Next()
 
 		// responnse handler prevents serving static files, so I bypass it for swagger route
-		if strings.HasPrefix(c.Request.URL.Path, "/swagger/") {
+		path := c.Request.URL.Path
+		if strings.HasPrefix(path, "/swagger/") {
+			return
+		} else if strings.HasPrefix(path, "/public/") {
 			return
 		}
 
