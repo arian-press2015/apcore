@@ -17,6 +17,8 @@ services:
       - POSTGRES_PORT=5432
       - JWT_SECRET=your_jwt_secret
       - JWT_EXPIRE_AT=24h
+    volumes:
+      - ./public:/app/public
     depends_on:
       - postgres
 
