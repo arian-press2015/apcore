@@ -22,6 +22,9 @@ type Config struct {
 		Host     string
 		Port     string
 	}
+	Redis struct {
+		Url string
+	}
 	Jwt struct {
 		JwtSecret   string
 		JwtExpireAt string
@@ -48,6 +51,8 @@ func NewConfig() *Config {
 	config.Database.DBName = getEnv("POSTGRES_DB", "mydatabase")
 	config.Database.Host = getEnv("POSTGRES_HOST", "localhost")
 	config.Database.Port = getEnv("POSTGRES_PORT", "5432")
+	// redis config
+	config.Redis.Url = getEnv("REDIS_URL", "127.0.0.1:6379")
 	// jwt config
 	config.Jwt.JwtSecret = getEnv("JWT_SECRET", "defaultsecret")
 	config.Jwt.JwtExpireAt = getEnv("JWT_EXPIRE_AT", "24h")
