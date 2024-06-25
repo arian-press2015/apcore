@@ -13,6 +13,7 @@ var Module = fx.Options(
 )
 
 type Config struct {
+	Env      string
 	Port     string
 	Database struct {
 		User     string
@@ -25,6 +26,11 @@ type Config struct {
 		JwtSecret   string
 		JwtExpireAt string
 	}
+	Sms struct {
+		ApiUrl     string
+		ApiKey     string
+		LineNumber string
+	}
 }
 
 func NewConfig() *Config {
@@ -34,6 +40,7 @@ func NewConfig() *Config {
 
 	config := &Config{}
 	// app config
+	config.Env = getEnv("ENV", "development")
 	config.Port = getEnv("PORT", "8080")
 	// database config
 	config.Database.User = getEnv("POSTGRES_USER", "root")
@@ -44,6 +51,10 @@ func NewConfig() *Config {
 	// jwt config
 	config.Jwt.JwtSecret = getEnv("JWT_SECRET", "defaultsecret")
 	config.Jwt.JwtExpireAt = getEnv("JWT_EXPIRE_AT", "24h")
+	// sms config
+	config.Sms.ApiUrl = mustGetEnv("SMS_API_URL")
+	config.Sms.ApiKey = mustGetEnv("SMS_API_KEY")
+	config.Sms.LineNumber = mustGetEnv("SMS_LINE_NUMBER")
 
 	return config
 }
