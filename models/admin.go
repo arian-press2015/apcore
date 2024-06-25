@@ -7,5 +7,4 @@ type Admin struct {
 	ProfileImage     string `json:"profile_image"`
 	Password         string `gorm:"not null" json:"password" binding:"required"`
 	TOTPSecret       string `json:"totp_secret"`
-	TwoFactorEnabled bool   `gorm:"default:false;not null" json:"two_factor_enabled"`
 }
