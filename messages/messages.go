@@ -5,7 +5,7 @@ const (
 	MsgUnauthorized         = "Unauthorized"
 	MsgInternalServerError  = "InternalServerError"
 	MsgSuccessful           = "Successful"
-	MsgInvalidEmailPassword = "InvalidEmailOrPassword"
+	MsgInvalidPhonePassword = "Invalid phone or password"
 	MsgNoAuthHeader         = "NoAuthHeader"
 	MsgFeatureNotFound      = "Feature not found"
 	MsgFeatureDisabled      = "Feature is disabled"

@@ -2,16 +2,16 @@ package messages
 
 var EnglishMessages = map[string]string{
 	// error
-	"NotFound":               "resource not found",
-	"Unauthorized":           "unauthorized access",
-	"InternalServerError":    "internal server error",
-	"InvalidEmailOrPassword": "invalid email or password",
-	"NoAuthHeader":           "authorization token not provided",
-	"Feature not found":      "feature not found",
-	"Feature is disabled":    "requested feature is disabled, please contact support",
-	"Method is not allowed":  "requested method is not allowed",
-	"Invalid OTP":            "otp is invalid",
-	"User not found":         "user not found",
+	"NotFound":                  "resource not found",
+	"Unauthorized":              "unauthorized access",
+	"InternalServerError":       "internal server error",
+	"Invalid phone or password": "invalid phone or password",
+	"NoAuthHeader":              "authorization token not provided",
+	"Feature not found":         "feature not found",
+	"Feature is disabled":       "requested feature is disabled, please contact support",
+	"Method is not allowed":     "requested method is not allowed",
+	"Invalid OTP":               "otp is invalid",
+	"User not found":            "user not found",
 	// success
 	"Successful": "operation finished successfully",
 }
