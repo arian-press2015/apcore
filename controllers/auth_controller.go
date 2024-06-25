@@ -11,7 +11,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type SignupBody struct {
@@ -32,38 +31,7 @@ func NewAuthController(service services.UserService, jwtService *jwt.JWTService,
 	return &AuthController{service, jwtService, otpService, smsSender}
 }
 
-// @Summary Signup route
-// @Description Creates new users
-// @Tags auth
-// @Accept  json
-// @Produce  json
-// @Param locale header string true "Locale" Enums(en, fa)
-// @Param user body SignupBody true "User Information"
-// @Success 201 {object} response.SwaggerResponse[models.User]
-// @Router /auth/signup [get]
-func (ctrl *AuthController) CreateUser(c *gin.Context) {
-	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
-		response.Error(c, nil, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if err != nil {
-		response.Error(c, nil, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-	user.Password = string(hashedPassword)
-
-	if err := ctrl.service.CreateUser(&user); err != nil {
-		response.Error(c, nil, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	response.Success(c, user, "success", nil, http.StatusCreated)
-}
-
-type SigninMessage struct {
+type AuthMessage struct {
 	Token string `json:"token"`
 }
 
@@ -78,7 +46,7 @@ type AuthBody struct {
 // @Produce  json
 // @Param locale header string true "Locale" Enums(en, fa)
 // @Param user body AuthBody true "User Phone"
-// @Success 200 {object} response.SwaggerResponse[SigninMessage]
+// @Success 200 {object} response.SwaggerResponse[AuthMessage]
 // @Router /auth [post]
 func (ctrl *AuthController) Auth(c *gin.Context) {
 	var input AuthBody
@@ -88,13 +56,29 @@ func (ctrl *AuthController) Auth(c *gin.Context) {
 		return
 	}
 
-	otp, err := ctrl.otpService.Generate(c.Request.Context(), input.Phone)
+	user, err := ctrl.service.GetUserByPhone(input.Phone)
+	if err != nil {
+
+		newUser := &models.User{
+			FullName: "کاربر گرامی",
+			Phone:    input.Phone,
+		}
+
+		if err := ctrl.service.CreateUser(newUser); err != nil {
+			response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+			return
+		}
+
+		user = newUser
+	}
+
+	otp, err := ctrl.otpService.Generate(c.Request.Context(), user.Phone)
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
 
-	err = ctrl.smsSender.SendLoginOtp(otp, input.Phone)
+	err = ctrl.smsSender.SendLoginOtp(otp, user.Phone)
 	if err != nil {
 		response.Error(c, nil, "Failed to send OTP", http.StatusInternalServerError)
 		return
@@ -103,13 +87,22 @@ func (ctrl *AuthController) Auth(c *gin.Context) {
 	response.Success(c, gin.H{"message": "OTP sent successfully"}, messages.MsgSuccessful, nil, http.StatusOK)
 }
 
-type VerifySignInBody struct {
+type VerifyAuthBody struct {
 	Phone string `json:"phone" binding:"required"`
 	OTP   string `json:"otp" binding:"required"`
 }
 
-func (ctrl *AuthController) VerifySignIn(c *gin.Context) {
-	var input VerifySignInBody
+// @Summary Verify Auth route
+// @Description Handles user verification
+// @Tags auth
+// @Accept  json
+// @Produce  json
+// @Param locale header string true "Locale" Enums(en, fa)
+// @Param user body VerifyAuthBody true "Verify OTP"
+// @Success 200 {object} response.SwaggerResponse[AuthMessage]
+// @Router /auth/verify [post]
+func (ctrl *AuthController) VerifyAuth(c *gin.Context) {
+	var input VerifyAuthBody
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.Error(c, nil, err.Error(), http.StatusBadRequest)
