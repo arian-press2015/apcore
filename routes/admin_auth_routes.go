@@ -9,5 +9,5 @@ import (
 
 func AdminAuthRoutes(router *gin.Engine, ctrl *controllers.AdminAuthController, jwtAuthMiddleware *middlewares.JWTAuthMiddleware) {
 	auth := router.Group("/admin")
-	auth.POST("/signin", ctrl.AdminLogin)
+	auth.POST("/auth", ctrl.AdminLogin)
 }

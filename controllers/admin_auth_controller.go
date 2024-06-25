@@ -16,7 +16,7 @@ type AdminSigninMessage struct {
 	Token string `json:"token"`
 }
 
-type AdminSigninBody struct {
+type AdminAuthBody struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
@@ -30,18 +30,18 @@ func NewAdminAuthController(service services.AdminService, jwtService *jwt.JWTSe
 	return &AdminAuthController{service,jwtService}
 }
 
-// @Summary Admin signin route
+// @Summary Admin auth route
 // @Description Logs in the admin
 // @Tags admin
 // @Accept  json
 // @Produce  json
 // @Param locale header string true "Locale" Enums(en, fa)
-// @Param user body SigninBody true "Admin Credentials"
-// @Success 200 {object} response.SwaggerResponse[SigninMessage]
-// @Router /admin/signin [post]
+// @Param user body AdminAuthBody true "Admin Credentials"
+// @Success 200 {object} response.SwaggerResponse[AuthMessage]
+// @Router /admin/auth [post]
 func (ctrl *AdminAuthController) AdminLogin(c *gin.Context) {
 	var admin *models.Admin
-	var input AdminSigninBody
+	var input AdminAuthBody
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.Error(c, nil, err.Error(), http.StatusBadRequest)
