@@ -13,7 +13,7 @@ type JWTService struct {
 }
 
 type Claims struct {
-	Email string `json:"email"`
+	Phone string `json:"phone"`
 	jwt.StandardClaims
 }
 
@@ -30,10 +30,10 @@ func NewJWTService(cfg *config.Config) (*JWTService, error) {
 	}, nil
 }
 
-func (s *JWTService) GenerateJWT(email string) (string, error) {
+func (s *JWTService) GenerateJWT(phone string) (string, error) {
 	expirationTime := time.Now().Add(s.jwtExpireAt)
 	claims := &Claims{
-		Email: email,
+		Phone: phone,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},

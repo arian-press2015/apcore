@@ -9,5 +9,7 @@ const (
 	MsgNoAuthHeader         = "NoAuthHeader"
 	MsgFeatureNotFound      = "Feature not found"
 	MsgFeatureDisabled      = "Feature is disabled"
-	MsgMethodNotAllowed		= "Method is not allowed"
+	MsgMethodNotAllowed     = "Method is not allowed"
+	MsgInvalidOTP           = "Invalid OTP"
+	MsgUserNotFound         = "User not found"
 )

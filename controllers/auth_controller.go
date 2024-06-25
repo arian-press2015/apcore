@@ -6,6 +6,8 @@ import (
 	"apcore/response"
 	"apcore/services"
 	"apcore/utils/jwt"
+	"apcore/utils/otp"
+	"apcore/utils/sms"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,12 +22,14 @@ type SignupBody struct {
 }
 
 type AuthController struct {
-	service services.UserService
+	service    services.UserService
 	jwtService *jwt.JWTService
+	otpService *otp.OTPService
+	smsSender  sms.SmsSender
 }
 
-func NewAuthController(service services.UserService, jwtService *jwt.JWTService) *AuthController {
-	return &AuthController{service, jwtService}
+func NewAuthController(service services.UserService, jwtService *jwt.JWTService, otpService *otp.OTPService, smsSender sms.SmsSender) *AuthController {
+	return &AuthController{service, jwtService, otpService, smsSender}
 }
 
 // @Summary Signup route
@@ -63,44 +67,70 @@ type SigninMessage struct {
 	Token string `json:"token"`
 }
 
-type SigninBody struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+type AuthBody struct {
+	Phone string `json:"phone" binding:"required"`
 }
 
-// @Summary Signin route
-// @Description Logs in the user
+// @Summary Auth route
+// @Description Handles user signin and signup
 // @Tags auth
 // @Accept  json
 // @Produce  json
 // @Param locale header string true "Locale" Enums(en, fa)
-// @Param user body SigninBody true "User Credentials"
+// @Param user body AuthBody true "User Phone"
 // @Success 200 {object} response.SwaggerResponse[SigninMessage]
-// @Router /auth/signin [get]
-func (ctrl *AuthController) Login(c *gin.Context) {
-	var user *models.User
-	var input SigninBody
+// @Router /auth [post]
+func (ctrl *AuthController) Auth(c *gin.Context) {
+	var input AuthBody
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.Error(c, nil, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	user, err := ctrl.service.GetUserByUsername(input.Email)
-	if err != nil {
-		response.Error(c, nil, messages.MsgInvalidEmailPassword, http.StatusUnauthorized)
-		return
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		response.Error(c, nil, messages.MsgInvalidEmailPassword, http.StatusUnauthorized)
-		return
-	}
-
-	token, err := ctrl.jwtService.GenerateJWT(user.Email)
+	otp, err := ctrl.otpService.Generate(c.Request.Context(), input.Phone)
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
 
+	err = ctrl.smsSender.SendLoginOtp(otp, input.Phone)
+	if err != nil {
+		response.Error(c, nil, "Failed to send OTP", http.StatusInternalServerError)
+		return
+	}
+
+	response.Success(c, gin.H{"message": "OTP sent successfully"}, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+type VerifySignInBody struct {
+	Phone string `json:"phone" binding:"required"`
+	OTP   string `json:"otp" binding:"required"`
+}
+
+func (ctrl *AuthController) VerifySignIn(c *gin.Context) {
+	var input VerifySignInBody
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, nil, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	isValid, err := ctrl.otpService.Verify(c, input.Phone, input.OTP)
+	if !isValid || err != nil {
+		response.Error(c, nil, messages.MsgInvalidOTP, http.StatusUnauthorized)
+		return
+	}
+
+	user, err := ctrl.service.GetUserByPhone(input.Phone)
+	if err != nil {
+		response.Error(c, nil, messages.MsgUserNotFound, http.StatusUnauthorized)
+		return
+	}
+
+	token, err := ctrl.jwtService.GenerateJWT(user.Phone)
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
 

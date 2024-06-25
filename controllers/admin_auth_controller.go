@@ -59,7 +59,7 @@ func (ctrl *AdminAuthController) AdminLogin(c *gin.Context) {
 		return
 	}
 
-	token, err := ctrl.jwtService.GenerateJWT(admin.Email)
+	token, err := ctrl.jwtService.GenerateJWT(admin.Phone)
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 

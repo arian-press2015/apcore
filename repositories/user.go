@@ -11,6 +11,7 @@ type UserRepository interface {
 	GetUsers(offset int, limit int) ([]models.User, error)
 	GetUserByID(id uint) (*models.User, error)
 	GetUserByUsername(username string) (*models.User, error)
+	GetUserByPhone(username string) (*models.User, error)
 	UpdateUser(user *models.User) error
 	DeleteUser(id uint) error
 }
@@ -47,6 +48,15 @@ func (r *userRepository) GetUserByID(id uint) (*models.User, error) {
 func (r *userRepository) GetUserByUsername(username string) (*models.User, error) {
 	var user models.User
 	err := r.db.Where("username = ?", username).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *userRepository) GetUserByPhone(phone string) (*models.User, error) {
+	var user models.User
+	err := r.db.Where("phone = ?", phone).First(&user).Error
 	if err != nil {
 		return nil, err
 	}

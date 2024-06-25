@@ -10,5 +10,6 @@ import (
 func AuthRoutes(router *gin.Engine, ctrl *controllers.AuthController, jwtAuthMiddleware *middlewares.JWTAuthMiddleware) {
 	auth := router.Group("/auth")
 	auth.POST("/signup", ctrl.CreateUser)
-	auth.POST("/signin", ctrl.Login)
+	auth.POST("/", ctrl.Auth)
+	auth.POST("/verify", ctrl.VerifySignIn)
 }

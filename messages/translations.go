@@ -10,6 +10,8 @@ var EnglishMessages = map[string]string{
 	"Feature not found":      "feature not found",
 	"Feature is disabled":    "requested feature is disabled, please contact support",
 	"Method is not allowed":  "requested method is not allowed",
+	"Invalid OTP":            "otp is invalid",
+	"User not found":         "user not found",
 	// success
 	"Successful": "operation finished successfully",
 }

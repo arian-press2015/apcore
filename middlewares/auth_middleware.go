@@ -36,7 +36,7 @@ func (jam *JWTAuthMiddleware) Middleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("email", claims.Email)
+		c.Set("username", claims.Phone)
 		c.Next()
 	}
 }
