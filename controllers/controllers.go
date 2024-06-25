@@ -8,6 +8,7 @@ var Module = fx.Options(
 	fx.Provide(NewRoleController),
 	fx.Provide(NewAdminAuthController),
 	fx.Provide(NewPingController),
+	fx.Provide(NewCustomerController),
 	fx.Provide(NewControllers),
 )
 
@@ -17,6 +18,7 @@ type Controllers struct {
 	UserController      *UserController
 	RoleController      *RoleController
 	PingController      *PingController
+	CustomerController  *CustomerController
 }
 
 func NewControllers(
@@ -25,6 +27,7 @@ func NewControllers(
 	userController *UserController,
 	roleController *RoleController,
 	pingController *PingController,
+	CustomerController *CustomerController,
 ) *Controllers {
 	return &Controllers{
 		AdminAuthController: adminAuthController,
@@ -32,5 +35,6 @@ func NewControllers(
 		UserController:      userController,
 		RoleController:      roleController,
 		PingController:      pingController,
+		CustomerController:  CustomerController,
 	}
 }

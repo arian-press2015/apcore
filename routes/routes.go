@@ -47,6 +47,7 @@ func (r *Routes) SetupRoutes(router *gin.Engine) {
 	UsersRoutes(router, r.controllers.UserController, r.jwtAuthMiddleware)
 	RolesRoutes(router, r.controllers.RoleController, r.jwtAuthMiddleware)
 	AdminAuthRoutes(router, r.controllers.AdminAuthController, r.jwtAuthMiddleware)
+	CustomersRoutes(router, r.controllers.CustomerController, r.jwtAuthMiddleware)
 	SwaggerRoutes(router)
 
 	router.NoMethod(func(c *gin.Context) {
