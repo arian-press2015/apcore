@@ -9,7 +9,8 @@ type AdminService interface {
 	CreateAdmin(admin *models.Admin) error
 	GetAdmins(offset int, limit int) ([]models.Admin, error)
 	GetAdminByID(id uint) (*models.Admin, error)
-	GetAdminByName(Name string) (*models.Admin, error)
+	GetAdminByName(name string) (*models.Admin, error)
+	GetAdminByPhone(phone string) (*models.Admin, error)
 	UpdateAdmin(admin *models.Admin) error
 	DeleteAdmin(id uint) error
 }
@@ -36,6 +37,10 @@ func (s *adminService) GetAdminByID(id uint) (*models.Admin, error) {
 
 func (s *adminService) GetAdminByName(name string) (*models.Admin, error) {
 	return s.repo.GetAdminByName(name)
+}
+
+func (s *adminService) GetAdminByPhone(phone string) (*models.Admin, error) {
+	return s.repo.GetAdminByPhone(phone)
 }
 
 func (s *adminService) UpdateAdmin(admin *models.Admin) error {
