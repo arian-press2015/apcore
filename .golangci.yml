@@ -1,0 +1,99 @@
+linters-settings:
+  revive:
+    ignore-generated-header: true
+    severity: warning
+    rules:
+      - name: add-constant
+        argument: 3
+  staticcheck:
+    checks:
+      - all
+  gosimple:
+    checks:
+      - all
+  ineffassign: true
+  gosec:
+    checks:
+      - G101
+      - G102
+      - G103
+      - G104
+      - G106
+      - G107
+      - G108
+      - G109
+      - G110
+      - G201
+      - G202
+      - G203
+      - G204
+      - G301
+      - G302
+      - G303
+      - G304
+      - G305
+      - G306
+      - G307
+      - G401
+      - G402
+      - G403
+      - G404
+      - G501
+      - G502
+      - G503
+      - G601
+  gocyclo:
+    min-complexity: 10
+  misspell:
+    locale: US
+  dupl:
+    threshold: 100
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  gofmt:
+    simplify: true
+
+linters:
+  enable:
+    - govet
+    - staticcheck
+    - gosimple
+    - ineffassign
+    - gosec
+    - gocyclo
+    - misspell
+    - dupl
+    - errcheck
+    - gofmt
+    - revive
+    - unparam
+    - unused
+  disable-all: true
+
+run:
+  tests: true
+  concurrency: 4
+  timeout: 5m
+  issues-exit-code: 1
+  config: .golangci.yml
+
+issues:
+  exclude-dirs:
+    - vendor
+  exclude-files:
+    - "_test.go"
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-use-default: false
+  exclude:
+    - 'SA1019' # https://github.com/golangci/golangci-lint/issues/741
+
+output:
+  formats: colored-line-number
+  print-issued-lines: true
+  sort-results: true
+  uniq-by-line: true
+
+color:
+  enabled: true

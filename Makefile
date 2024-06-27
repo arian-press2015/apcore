@@ -6,7 +6,7 @@ SOURCES=$(shell find . -type f -name '*.go')
 
 TEST_PACKAGES=$(shell go list ./... | grep -v /vendor/)
 
-.PHONY: all dev build docker run test clean format lint vet
+.PHONY: all dev build docker run test clean lint
 
 all: build
 
@@ -35,17 +35,9 @@ clean:
 	go clean
 	rm -f $(BINARY_NAME)
 
-format:
-	@echo "Formatting the code..."
-	gofmt -s -w $(SOURCES)
-
 lint:
 	@echo "Linting the code..."
-	@golint $(TEST_PACKAGES)
-
-vet:
-	@echo "Vetting the code..."
-	@go vet $(TEST_PACKAGES)
+	@golangci-lint run
 
 deps:
 	@echo "Installing dependencies..."
@@ -54,8 +46,6 @@ deps:
 docs:
 	@echo "Generating documentation..."
 	swag init --parseDependency
-
-check: format lint vet test
 
 help:
 	@echo "Makefile commands:"
@@ -66,10 +56,7 @@ help:
 	@echo "  make run       - Run the binary"
 	@echo "  make test      - Run tests"
 	@echo "  make clean     - Clean up generated files"
-	@echo "  make format    - Format the code"
 	@echo "  make lint      - Lint the code"
-	@echo "  make vet       - Vet the code"
 	@echo "  make deps      - Install dependencies"
 	@echo "  make docs      - Generate documentation"
-	@echo "  make check     - Run all checks (format, lint, vet, test)"
 	@echo "  make help      - Show this help message"
