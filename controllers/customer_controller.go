@@ -4,8 +4,8 @@ import (
 	"apcore/messages"
 	"apcore/response"
 	"apcore/services"
+	"apcore/utils/parsers"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,18 +19,7 @@ func NewCustomerController(service services.CustomerService) *CustomerController
 }
 
 func (ctrl *CustomerController) GetCustomers(c *gin.Context) {
-	offsetStr := c.Query("offset")
-	limitStr := c.Query("limit")
-
-	offset, err := strconv.Atoi(offsetStr)
-	if err != nil {
-		offset = 0
-	}
-
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil {
-		limit = 10
-	}
+	offset, limit := parsers.ParsePaginationParams(c.Query("offset"), c.Query("limit"))
 
 	customers, err := ctrl.service.GetCustomers(offset, limit)
 	if err != nil {

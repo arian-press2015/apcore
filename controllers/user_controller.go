@@ -4,8 +4,8 @@ import (
 	"apcore/messages"
 	"apcore/response"
 	"apcore/services"
+	"apcore/utils/parsers"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,18 +19,7 @@ func NewUserController(service services.UserService) *UserController {
 }
 
 func (ctrl *UserController) GetUsers(c *gin.Context) {
-	offsetStr := c.Query("offset")
-	limitStr := c.Query("limit")
-
-	offset, err := strconv.Atoi(offsetStr)
-	if err != nil {
-		offset = 0
-	}
-
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil {
-		limit = 10
-	}
+	offset, limit := parsers.ParsePaginationParams(c.Query("offset"), c.Query("limit"))
 
 	users, err := ctrl.service.GetUsers(offset, limit)
 	if err != nil {

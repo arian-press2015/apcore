@@ -5,8 +5,8 @@ import (
 	"apcore/models"
 	"apcore/response"
 	"apcore/services"
+	"apcore/utils/parsers"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,18 +35,7 @@ func (ctrl *RoleController) CreateRole(c *gin.Context) {
 }
 
 func (ctrl *RoleController) GetRoles(c *gin.Context) {
-	offsetStr := c.Query("offset")
-	limitStr := c.Query("limit")
-
-	offset, err := strconv.Atoi(offsetStr)
-	if err != nil {
-		offset = 0
-	}
-
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil {
-		limit = 10
-	}
+	offset, limit := parsers.ParsePaginationParams(c.Query("offset"), c.Query("limit"))
 
 	roles, err := ctrl.service.GetRoles(offset, limit)
 	if err != nil {
