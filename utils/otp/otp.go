@@ -13,7 +13,9 @@ import (
 )
 
 const (
-	otpChars = "0123456789"
+	EMPTY_STRING  = ""
+	OTP_CHARATERS = "0123456789"
+	START_INDEX   = 0
 )
 
 type OTPService struct {
@@ -32,12 +34,12 @@ func NewOTPService(keyStore *keystore.KeyStore, length int, expiry time.Duration
 
 func (s *OTPService) generateOTP() (string, error) {
 	otp := make([]byte, s.length)
-	for i := 0; i < s.length; i++ {
-		index, err := rand.Int(rand.Reader, big.NewInt(int64(len(otpChars))))
+	for i := START_INDEX; i < s.length; i++ {
+		index, err := rand.Int(rand.Reader, big.NewInt(int64(len(OTP_CHARATERS))))
 		if err != nil {
-			return "", fmt.Errorf("failed to generate OTP: %w", err)
+			return EMPTY_STRING, fmt.Errorf("failed to generate OTP: %w", err)
 		}
-		otp[i] = otpChars[index.Int64()]
+		otp[i] = OTP_CHARATERS[index.Int64()]
 	}
 	return string(otp), nil
 }
@@ -45,13 +47,13 @@ func (s *OTPService) generateOTP() (string, error) {
 func (s *OTPService) Generate(ctx context.Context, phone string) (string, error) {
 	otp, err := s.generateOTP()
 	if err != nil {
-		return "", err
+		return EMPTY_STRING, err
 	}
 
 	otpKey := fmt.Sprintf("phone-login-otp:%s", phone)
 	err = s.keyStore.Set(ctx, otpKey, otp, s.expiry)
 	if err != nil {
-		return "", fmt.Errorf("failed to store OTP in Redis: %w", err)
+		return EMPTY_STRING, fmt.Errorf("failed to store OTP in Redis: %w", err)
 	}
 
 	return otp, nil

@@ -7,6 +7,10 @@ import (
 	"path/filepath"
 )
 
+const (
+	EMPTY_STRING = ""
+)
+
 type LocalFileUploader struct {
 	validators []UploadValidator
 }
@@ -21,23 +25,23 @@ func NewLocalFileUploader(
 func (u *LocalFileUploader) Save(reader io.Reader, uploadDir string, filename string) (string, error) {
 	for _, validator := range u.validators {
 		if err := validator.Validate(filename, reader); err != nil {
-			return "", err
+			return EMPTY_STRING, err
 		}
 	}
 
 	if err := createDirectory(uploadDir); err != nil {
-		return "", fmt.Errorf("could not create upload directory: %v", err)
+		return EMPTY_STRING, fmt.Errorf("could not create upload directory: %v", err)
 	}
 
 	filePath := filepath.Join(uploadDir, filename)
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", fmt.Errorf("could not create file: %v", err)
+		return EMPTY_STRING, fmt.Errorf("could not create file: %v", err)
 	}
 	defer file.Close()
 
 	if _, err := io.Copy(file, reader); err != nil {
-		return "", fmt.Errorf("could not copy data to file: %v", err)
+		return EMPTY_STRING, fmt.Errorf("could not copy data to file: %v", err)
 	}
 
 	return filename, nil

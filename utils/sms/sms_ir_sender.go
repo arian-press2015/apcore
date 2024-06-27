@@ -7,6 +7,11 @@ import (
 	"net/http"
 )
 
+const (
+	OTP_TEMPLATE_ID     = 100000
+	INVOICE_TEMPLATE_ID = 200000
+)
+
 type SmsIrSender struct {
 	apiUrl     string
 	apiKey     string
@@ -76,7 +81,7 @@ func (s *SmsIrSender) SendLoginOtp(otp string, phone string) error {
 	params := []SmsRequestParams{
 		{Name: "CODE", Value: otp},
 	}
-	err := s.SendSms(phone, 100000, params)
+	err := s.SendSms(phone, OTP_TEMPLATE_ID, params)
 	return err
 }
 
@@ -84,7 +89,7 @@ func (s *SmsIrSender) SendInvoice(invoice string, phone string) error {
 	params := []SmsRequestParams{
 		{Name: "INVOICE", Value: invoice},
 	}
-	err := s.SendSms(phone, 200000, params)
+	err := s.SendSms(phone, INVOICE_TEMPLATE_ID, params)
 	return err
 }
 

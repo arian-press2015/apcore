@@ -13,6 +13,12 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+const (
+	MAX_IDLE_CONNS    = 10
+	MAX_OPEN_CONNS    = 100
+	CONN_MAX_LIFETIME = 1 * time.Hour
+)
+
 var Module = fx.Options(
 	fx.Provide(NewDB),
 )
@@ -33,9 +39,9 @@ func NewDB(cfg *config.Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to get database instance: %w", err)
 	}
 
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetMaxIdleConns(MAX_IDLE_CONNS)
+	sqlDB.SetMaxOpenConns(MAX_OPEN_CONNS)
+	sqlDB.SetConnMaxLifetime(CONN_MAX_LIFETIME)
 
 	return db, nil
 }

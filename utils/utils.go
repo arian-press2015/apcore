@@ -12,6 +12,11 @@ import (
 	"go.uber.org/fx"
 )
 
+const (
+	OTP_LENGTH         = 6
+	OTP_EXPIRY_MINUTES = 2 * time.Minute
+)
+
 var Module = fx.Options(
 	fx.Provide(jwt.NewJWTService),
 	fx.Provide(provideRedisAddress),
@@ -31,9 +36,9 @@ func provideRedisAddress(config *config.Config) string {
 }
 
 func provideOTPLength() int {
-	return 6
+	return OTP_LENGTH
 }
 
 func provideOTPExpiry() time.Duration {
-	return 2 * time.Minute
+	return OTP_EXPIRY_MINUTES
 }
