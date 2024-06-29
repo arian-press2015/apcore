@@ -4,7 +4,6 @@ import (
 	"apcore/config"
 	"apcore/models"
 	"fmt"
-	"log"
 	"time"
 
 	"go.uber.org/fx"
@@ -47,8 +46,5 @@ func NewDB(cfg *config.Config) (*gorm.DB, error) {
 }
 
 func Migrate(db *gorm.DB) {
-	if err := db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"").Error; err != nil {
-		log.Fatalf("Failed to create uuid-ossp extension: %v", err)
-	}
 	db.AutoMigrate(&models.User{}, &models.Role{}, &models.Admin{}, &models.Feature{}, &models.Customer{})
 }
