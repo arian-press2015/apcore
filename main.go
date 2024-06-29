@@ -15,7 +15,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 // @title APCore API
@@ -56,7 +55,6 @@ func main() {
 
 func registerHooks(
 	lc fx.Lifecycle,
-	db *gorm.DB,
 	router *gin.Engine,
 	middlewares *middlewares.Middlewares,
 	routes *routes.Routes,
@@ -65,7 +63,6 @@ func registerHooks(
 ) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			database.Migrate(db)
 			middlewares.SetupMiddlewares(router)
 			routes.SetupRoutes(router)
 			go func() {

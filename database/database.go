@@ -2,7 +2,6 @@ package database
 
 import (
 	"apcore/config"
-	"apcore/models"
 	"fmt"
 	"time"
 
@@ -43,8 +42,4 @@ func NewDB(cfg *config.Config) (*gorm.DB, error) {
 	sqlDB.SetConnMaxLifetime(CONN_MAX_LIFETIME)
 
 	return db, nil
-}
-
-func Migrate(db *gorm.DB) {
-	db.AutoMigrate(&models.Admin{}, &models.Feature{}, &models.Customer{})
 }
