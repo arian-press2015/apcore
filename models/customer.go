@@ -8,6 +8,6 @@ type Customer struct {
 	Logo       string  `json:"logo"`
 	IsActive   bool    `json:"isActive"`
 	IsDisabled bool    `json:"isDisabled"`
-	Latitude   float64 `gorm:"not null"`
-	Longitude  float64 `gorm:"not null"`
+	Latitude   float64 `gorm:"not null" json:"latitude"`
+	Longitude  float64 `gorm:"not null" json:"longitude"`
 }

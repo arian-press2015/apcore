@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"apcore/messages"
+	"apcore/models"
 	"apcore/response"
 	"apcore/services"
 	"apcore/utils/parsers"
@@ -16,6 +17,36 @@ type CustomerController struct {
 
 func NewCustomerController(service services.CustomerService) *CustomerController {
 	return &CustomerController{service}
+}
+
+type CreateCustomerBody struct {
+	Name      string  `json:"name"`
+	Details   string  `json:"details"`
+	Phone     string  `json:"phone"`
+}
+
+func (ctrl *CustomerController) CreateCustomer(c *gin.Context) {
+	var input CreateCustomerBody
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, nil, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	newCustomer := &models.Customer{
+		Name:       input.Name,
+		Details:    input.Details,
+		Phone:      input.Phone,
+		IsActive:   false,
+		IsDisabled: false,
+	}
+
+	if err := ctrl.service.CreateCustomer(newCustomer); err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	response.Success(c, newCustomer, messages.MsgSuccessful, nil, http.StatusCreated)
 }
 
 func (ctrl *CustomerController) GetCustomers(c *gin.Context) {
