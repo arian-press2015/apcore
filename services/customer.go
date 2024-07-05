@@ -8,7 +8,7 @@ import (
 type CustomerService interface {
 	CreateCustomer(customer *models.Customer) error
 	GetCustomers(offset int, limit int) ([]models.Customer, error)
-	GetCustomerByID(id uint) (*models.Customer, error)
+	GetCustomerByID(uuid string) (*models.Customer, error)
 	GetCustomerByName(name string) (*models.Customer, error)
 	UpdateCustomer(customer *models.Customer) error
 	DeleteCustomer(id uint) error
@@ -30,8 +30,8 @@ func (s *customerService) GetCustomers(offset int, limit int) ([]models.Customer
 	return s.repo.GetCustomers(offset, limit)
 }
 
-func (s *customerService) GetCustomerByID(id uint) (*models.Customer, error) {
-	return s.repo.GetCustomerByID(id)
+func (s *customerService) GetCustomerByID(uuid string) (*models.Customer, error) {
+	return s.repo.GetCustomerByID(uuid)
 }
 
 func (s *customerService) GetCustomerByName(name string) (*models.Customer, error) {

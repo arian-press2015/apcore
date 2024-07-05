@@ -9,7 +9,7 @@ import (
 type CustomerRepository interface {
 	CreateCustomer(customer *models.Customer) error
 	GetCustomers(offset int, limit int) ([]models.Customer, error)
-	GetCustomerByID(id uint) (*models.Customer, error)
+	GetCustomerByID(uuid string) (*models.Customer, error)
 	GetCustomerByName(name string) (*models.Customer, error)
 	UpdateCustomer(customer *models.Customer) error
 	DeleteCustomer(id uint) error
@@ -36,9 +36,9 @@ func (r *customerRepository) GetCustomers(offset int, limit int) ([]models.Custo
 	return customers, nil
 }
 
-func (r *customerRepository) GetCustomerByID(id uint) (*models.Customer, error) {
+func (r *customerRepository) GetCustomerByID(uuid string) (*models.Customer, error) {
 	var customer models.Customer
-	err := r.db.First(&customer, id).Error
+	err := r.db.Where("id = ?", uuid).First(&customer).Error
 	if err != nil {
 		return nil, err
 	}
