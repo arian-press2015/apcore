@@ -29,3 +29,15 @@ func (ctrl *UserController) GetUsers(c *gin.Context) {
 
 	response.Success(c, users, messages.MsgSuccessful, nil, http.StatusOK)
 }
+
+func (ctrl *UserController) GetUserById(c *gin.Context) {
+	uuid := c.Param("uuid")
+
+	user, err := ctrl.service.GetUserByID(uuid)
+	if err != nil {
+		response.Error(c, nil, messages.MsgNotFound, http.StatusNotFound)
+		return
+	}
+
+	response.Success(c, user, messages.MsgSuccessful, nil,http.StatusOK)
+}
