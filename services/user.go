@@ -8,8 +8,7 @@ import (
 type UserService interface {
 	CreateUser(user *models.User) error
 	GetUsers(offset int, limit int) ([]models.User, error)
-	GetUserByID(id uint) (*models.User, error)
-	GetUserByUsername(username string) (*models.User, error)
+	GetUserByID(uuid string) (*models.User, error)
 	GetUserByPhone(phone string) (*models.User, error)
 	UpdateUser(user *models.User) error
 	DeleteUser(id uint) error
@@ -31,12 +30,8 @@ func (s *userService) GetUsers(offset int, limit int) ([]models.User, error) {
 	return s.repo.GetUsers(offset, limit)
 }
 
-func (s *userService) GetUserByID(id uint) (*models.User, error) {
-	return s.repo.GetUserByID(id)
-}
-
-func (s *userService) GetUserByUsername(username string) (*models.User, error) {
-	return s.repo.GetUserByUsername(username)
+func (s *userService) GetUserByID(uuid string) (*models.User, error) {
+	return s.repo.GetUserByID(uuid)
 }
 
 func (s *userService) GetUserByPhone(phone string) (*models.User, error) {
