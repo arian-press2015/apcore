@@ -11,4 +11,5 @@ func CustomersRoutes(router *gin.Engine, ctrl *controllers.CustomerController, j
 	customers := router.Group("/customers")
 	customers.POST("", ctrl.CreateCustomer)
 	customers.GET("", ctrl.GetCustomers)
+	customers.GET(":name", ctrl.GetCustomerByName)
 }

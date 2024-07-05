@@ -60,3 +60,15 @@ func (ctrl *CustomerController) GetCustomers(c *gin.Context) {
 
 	response.Success(c, customers, messages.MsgSuccessful, nil, http.StatusOK)
 }
+
+func (ctrl *CustomerController) GetCustomerByName(c *gin.Context) {
+	name := c.Param("name")
+
+	customer, err := ctrl.service.GetCustomerByName(name)
+	if err != nil {
+		response.Error(c, nil, messages.MsgNotFound, http.StatusNotFound)
+		return
+	}
+
+	response.Success(c, customer, messages.MsgSuccessful, nil, http.StatusOK)
+}
