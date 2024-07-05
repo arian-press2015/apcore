@@ -9,8 +9,7 @@ import (
 type UserRepository interface {
 	CreateUser(user *models.User) error
 	GetUsers(offset int, limit int) ([]models.User, error)
-	GetUserByID(id uint) (*models.User, error)
-	GetUserByUsername(username string) (*models.User, error)
+	GetUserByID(uuid string) (*models.User, error)
 	GetUserByPhone(username string) (*models.User, error)
 	UpdateUser(user *models.User) error
 	DeleteUser(id uint) error
@@ -36,18 +35,9 @@ func (r *userRepository) GetUsers(offset int, limit int) ([]models.User, error) 
 	return users, nil
 }
 
-func (r *userRepository) GetUserByID(id uint) (*models.User, error) {
+func (r *userRepository) GetUserByID(uuid string) (*models.User, error) {
 	var user models.User
-	err := r.db.First(&user, id).Error
-	if err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
-
-func (r *userRepository) GetUserByUsername(username string) (*models.User, error) {
-	var user models.User
-	err := r.db.Where("username = ?", username).First(&user).Error
+	err := r.db.Where("id = ?", uuid).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
