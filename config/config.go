@@ -2,7 +2,6 @@ package config
 
 import (
 	"log"
-	"os"
 
 	"github.com/joho/godotenv"
 	"go.uber.org/fx"
@@ -21,6 +20,10 @@ type Config struct {
 		DBName   string
 		Host     string
 		Port     string
+	}
+	Logger struct {
+		ElasticEnabled bool
+		FileEnabled    bool
 	}
 	Elastic struct {
 		Url      string
@@ -57,6 +60,9 @@ func NewConfig() *Config {
 	config.Database.DBName = getEnv("POSTGRES_DB", "mydatabase")
 	config.Database.Host = getEnv("POSTGRES_HOST", "localhost")
 	config.Database.Port = getEnv("POSTGRES_PORT", "5432")
+	// logger config
+	config.Logger.ElasticEnabled = getEnvAsBool("LOGGER_ELASTIC_ENABLED", false)
+	config.Logger.FileEnabled = getEnvAsBool("LOGGER_FILE_ENABLED", true)
 	// elasticsearch config
 	config.Elastic.Url = getEnv("ELASTICSEARCH_URL", "https://localhost:9200")
 	config.Elastic.Username = getEnv("ELASTICSEARCH_USERNAME", "elastic")
@@ -73,19 +79,4 @@ func NewConfig() *Config {
 	config.Sms.LineNumber = mustGetEnv("SMS_LINE_NUMBER")
 
 	return config
-}
-
-func getEnv(key, fallback string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-	return fallback
-}
-
-func mustGetEnv(key string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
-	}
-	log.Fatalf("Environment variable %s not set", key)
-	return ""
 }

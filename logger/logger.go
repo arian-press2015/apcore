@@ -57,6 +57,10 @@ func (hook *ElasticHook) Write(p []byte) (n int, err error) {
 }
 
 func NewElasticClient(cfg *config.Config) (*elastic.Client, error) {
+	if !cfg.Logger.ElasticEnabled {
+		return nil, nil
+	}
+
 	client, err := elastic.NewClient(
 		elastic.SetURL(cfg.Elastic.Url),
 		elastic.SetSniff(false),
@@ -77,26 +81,43 @@ func NewLogger(client *elastic.Client, cfg *config.Config) (*Logger, error) {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	consoleCore := zapcore.NewCore(zapcore.NewJSONEncoder(encoderConfig), zapcore.AddSync(os.Stdout), zapcore.DebugLevel)
-
-	elasticHook := NewElasticHook(client, cfg.Elastic.Index, "localhost")
-	elasticCore := zapcore.NewCore(zapcore.NewJSONEncoder(encoderConfig), zapcore.AddSync(elasticHook), zapcore.DebugLevel)
-
-	fileSyncer := zapcore.AddSync(&lumberjack.Logger{
-		Filename:   "logs/app.log",
-		MaxSize:    10, // megabytes
-		MaxBackups: 7,
-		MaxAge:     1, // days
-		Compress:   true,
-	})
-
-	fileCore := zapcore.NewCore(
+	consoleCore := zapcore.NewCore(
 		zapcore.NewJSONEncoder(encoderConfig),
-		fileSyncer,
+		zapcore.AddSync(os.Stdout),
 		zapcore.DebugLevel,
 	)
 
-	core := zapcore.NewTee(consoleCore, elasticCore, fileCore)
+	var cores []zapcore.Core
+	cores = append(cores, consoleCore)
+
+	if cfg.Logger.ElasticEnabled {
+		elasticHook := NewElasticHook(client, cfg.Elastic.Index, "localhost")
+		elasticCore := zapcore.NewCore(
+			zapcore.NewJSONEncoder(encoderConfig),
+			zapcore.AddSync(elasticHook),
+			zapcore.DebugLevel,
+		)
+		cores = append(cores, elasticCore)
+	}
+
+	if cfg.Logger.FileEnabled {
+		fileSyncer := zapcore.AddSync(&lumberjack.Logger{
+			Filename:   "logs/app.log",
+			MaxSize:    10, // megabytes
+			MaxBackups: 7,
+			MaxAge:     1, // days
+			Compress:   true,
+		})
+
+		fileCore := zapcore.NewCore(
+			zapcore.NewJSONEncoder(encoderConfig),
+			fileSyncer,
+			zapcore.DebugLevel,
+		)
+		cores = append(cores, fileCore)
+	}
+
+	core := zapcore.NewTee(cores...)
 
 	zapLogger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 	return &Logger{zapLogger}, nil
