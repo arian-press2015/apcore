@@ -1,7 +1,9 @@
 package logger
 
 import (
+	"apcore/config"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -32,11 +34,14 @@ func NewElasticHook(client *elastic.Client, index string, host string) *ElasticH
 }
 
 func (hook *ElasticHook) Write(p []byte) (n int, err error) {
-	entry := map[string]interface{}{
-		"message":   string(p),
-		"host":      hook.host,
-		"timestamp": time.Now(),
+	var entry map[string]interface{}
+	err = json.Unmarshal(p, &entry)
+	if err != nil {
+		return 0, fmt.Errorf("failed to unmarshal log entry: %w", err)
 	}
+
+	entry["host"] = hook.host
+	entry["timestamp"] = time.Now()
 
 	_, err = hook.client.Index().
 		Index(hook.index).
@@ -44,17 +49,18 @@ func (hook *ElasticHook) Write(p []byte) (n int, err error) {
 		Do(context.Background())
 
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to index log entry: %w", err)
 	}
 
 	return len(p), nil
 }
 
-func NewElasticClient() (*elastic.Client, error) {
+func NewElasticClient(cfg *config.Config) (*elastic.Client, error) {
 	client, err := elastic.NewClient(
-		elastic.SetURL("http://localhost:9200"),
+		elastic.SetURL(cfg.Elastic.Url),
 		elastic.SetSniff(false),
-		elastic.SetHealthcheck(false),
+		elastic.SetHealthcheck(true),
+		elastic.SetBasicAuth(cfg.Elastic.Username, cfg.Elastic.Password),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create elastic client: %w", err)
@@ -66,15 +72,15 @@ type Logger struct {
 	zapLogger *zap.Logger
 }
 
-func NewLogger(client *elastic.Client) (*Logger, error) {
+func NewLogger(client *elastic.Client, cfg *config.Config) (*Logger, error) {
 	consoleCore := zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), zapcore.AddSync(os.Stdout), zapcore.DebugLevel)
 
-	elasticHook := NewElasticHook(client, "apcore_logs", "localhost")
+	elasticHook := NewElasticHook(client, cfg.Elastic.Index, "localhost")
 	elasticCore := zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), zapcore.AddSync(elasticHook), zapcore.DebugLevel)
 
 	core := zapcore.NewTee(consoleCore, elasticCore)
 
-	zapLogger := zap.New(core, zap.AddCaller())
+	zapLogger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 	return &Logger{zapLogger}, nil
 }
 

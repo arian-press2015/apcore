@@ -22,6 +22,12 @@ type Config struct {
 		Host     string
 		Port     string
 	}
+	Elastic struct {
+		Url      string
+		Username string
+		Password string
+		Index    string
+	}
 	Redis struct {
 		Url string
 	}
@@ -51,6 +57,11 @@ func NewConfig() *Config {
 	config.Database.DBName = getEnv("POSTGRES_DB", "mydatabase")
 	config.Database.Host = getEnv("POSTGRES_HOST", "localhost")
 	config.Database.Port = getEnv("POSTGRES_PORT", "5432")
+	// elasticsearch config
+	config.Elastic.Url = getEnv("ELASTICSEARCH_URL", "https://localhost:9200")
+	config.Elastic.Username = getEnv("ELASTICSEARCH_USERNAME", "elastic")
+	config.Elastic.Password = getEnv("ELASTICSEARCH_PASSWORD", "password")
+	config.Elastic.Index = getEnv("ELASTICSEARCH_INDEX", "apcore_logs")
 	// redis config
 	config.Redis.Url = getEnv("REDIS_URL", "127.0.0.1:6379")
 	// jwt config
