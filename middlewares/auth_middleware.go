@@ -3,6 +3,7 @@ package middlewares
 import (
 	"apcore/messages"
 	"apcore/response"
+	"apcore/services"
 	"apcore/utils/jwt"
 	"net/http"
 	"strings"
@@ -11,11 +12,12 @@ import (
 )
 
 type JWTAuthMiddleware struct {
-	jwtService *jwt.JWTService
+	jwtService  *jwt.JWTService
+	userService services.UserService
 }
 
-func NewJWTAuthMiddleware(jwtService *jwt.JWTService) *JWTAuthMiddleware {
-	return &JWTAuthMiddleware{jwtService}
+func NewJWTAuthMiddleware(jwtService *jwt.JWTService, userService services.UserService) *JWTAuthMiddleware {
+	return &JWTAuthMiddleware{jwtService, userService}
 }
 
 func (jam *JWTAuthMiddleware) Middleware() gin.HandlerFunc {
@@ -36,7 +38,14 @@ func (jam *JWTAuthMiddleware) Middleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("username", claims.Phone)
+		user, err := jam.userService.GetUserByPhone(claims.Phone)
+		if err != nil {
+			response.Error(c, nil, "User not found", http.StatusUnauthorized)
+			c.Abort()
+			return
+		}
+
+		c.Set("userID", user.BaseModel.ID)
 		c.Next()
 	}
 }
