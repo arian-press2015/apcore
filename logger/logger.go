@@ -12,6 +12,7 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var Module = fx.Options(
@@ -73,12 +74,29 @@ type Logger struct {
 }
 
 func NewLogger(client *elastic.Client, cfg *config.Config) (*Logger, error) {
-	consoleCore := zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), zapcore.AddSync(os.Stdout), zapcore.DebugLevel)
+	encoderConfig := zap.NewProductionEncoderConfig()
+	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+
+	consoleCore := zapcore.NewCore(zapcore.NewJSONEncoder(encoderConfig), zapcore.AddSync(os.Stdout), zapcore.DebugLevel)
 
 	elasticHook := NewElasticHook(client, cfg.Elastic.Index, "localhost")
-	elasticCore := zapcore.NewCore(zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), zapcore.AddSync(elasticHook), zapcore.DebugLevel)
+	elasticCore := zapcore.NewCore(zapcore.NewJSONEncoder(encoderConfig), zapcore.AddSync(elasticHook), zapcore.DebugLevel)
 
-	core := zapcore.NewTee(consoleCore, elasticCore)
+	fileSyncer := zapcore.AddSync(&lumberjack.Logger{
+		Filename:   "logs/app.log",
+		MaxSize:    10, // megabytes
+		MaxBackups: 7,
+		MaxAge:     1, // days
+		Compress:   true,
+	})
+
+	fileCore := zapcore.NewCore(
+		zapcore.NewJSONEncoder(encoderConfig),
+		fileSyncer,
+		zapcore.DebugLevel,
+	)
+
+	core := zapcore.NewTee(consoleCore, elasticCore, fileCore)
 
 	zapLogger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 	return &Logger{zapLogger}, nil
