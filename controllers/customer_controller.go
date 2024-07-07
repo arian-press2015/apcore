@@ -20,9 +20,9 @@ func NewCustomerController(service services.CustomerService) *CustomerController
 }
 
 type CreateCustomerBody struct {
-	Name      string  `json:"name"`
-	Details   string  `json:"details"`
-	Phone     string  `json:"phone"`
+	Name    string `json:"name"`
+	Details string `json:"details"`
+	Phone   string `json:"phone"`
 }
 
 func (ctrl *CustomerController) CreateCustomer(c *gin.Context) {
@@ -71,4 +71,38 @@ func (ctrl *CustomerController) GetCustomerByName(c *gin.Context) {
 	}
 
 	response.Success(c, customer, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+type UpdateCustomerBody struct {
+	Name    string `json:"name"`
+	Details string `json:"details"`
+	Phone   string `json:"phone"`
+}
+
+func (ctrl *CustomerController) UpdateCustomer(c *gin.Context) {
+	var input UpdateCustomerBody
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, nil, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	name := c.Param("name")
+
+	existingCustomer, err := ctrl.service.GetCustomerByName(name)
+	if err != nil {
+		response.Error(c, nil, "Customer not found", http.StatusNotFound)
+		return
+	}
+
+	existingCustomer.Name = input.Name
+	existingCustomer.Details = input.Details
+	existingCustomer.Phone = input.Phone
+
+	if err := ctrl.service.UpdateCustomer(existingCustomer); err != nil {
+		response.Error(c, nil, "Failed to update customer", http.StatusInternalServerError)
+		return
+	}
+
+	response.Success(c, existingCustomer, messages.MsgSuccessful, nil, http.StatusOK)
 }

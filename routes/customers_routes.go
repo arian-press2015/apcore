@@ -12,4 +12,5 @@ func CustomersRoutes(router *gin.Engine, ctrl *controllers.CustomerController, j
 	customers.POST("", ctrl.CreateCustomer)
 	customers.GET("", ctrl.GetCustomers)
 	customers.GET(":name", ctrl.GetCustomerByName)
+	customers.PUT(":name", ctrl.UpdateCustomer)
 }
