@@ -2,6 +2,7 @@ package routes
 
 import (
 	"apcore/controllers"
+	"apcore/logger"
 	"apcore/messages"
 	"apcore/middlewares"
 	"apcore/response"
@@ -27,17 +28,20 @@ type Routes struct {
 	controllers       *controllers.Controllers
 	jwtAuthMiddleware *middlewares.JWTAuthMiddleware
 	fileUploader      *fileupload.LocalFileUploader
+	logger            *logger.Logger
 }
 
 func NewRoutes(
 	controllers *controllers.Controllers,
 	jwtAuthMiddleware *middlewares.JWTAuthMiddleware,
 	fileUploader *fileupload.LocalFileUploader,
+	logger *logger.Logger,
 ) *Routes {
 	return &Routes{
 		controllers:       controllers,
 		jwtAuthMiddleware: jwtAuthMiddleware,
 		fileUploader:      fileUploader,
+		logger:            logger,
 	}
 }
 
