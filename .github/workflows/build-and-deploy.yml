@@ -42,5 +42,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
             cd /home/ap2015/apcore/
-            ./update-compose.sh
+            docker-compose pull
+            docker-compose down
+            docker-compose up -d
