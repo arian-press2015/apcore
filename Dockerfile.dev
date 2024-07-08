@@ -10,6 +10,7 @@ WORKDIR /app
 
 COPY go.mod go.sum ./
 
+ENV GOPROXY=http://localhost:8081,direct
 RUN go mod download
 
 COPY . .

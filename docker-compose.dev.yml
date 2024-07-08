@@ -4,7 +4,9 @@ services:
   app:
     build:
       context: .
-    image: ghcr.io/arian-press2015/apcore:latest
+      network: host
+      dockerfile: Dockerfile.dev
+    image: apcore:latest
     ports:
       - "8080:8080"
     environment:
