@@ -28,7 +28,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/your-image-name:latest
+          tags: ghcr.io/${{ github.repository_owner }}/apcore:latest
 
       - name: SSH and update Docker Compose
         uses: appleboy/ssh-action@v0.1.1
