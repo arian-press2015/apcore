@@ -3,6 +3,7 @@ package repositories
 import (
 	"apcore/models"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -13,13 +14,14 @@ type CustomerRepository interface {
 	GetCustomerByName(name string) (*models.Customer, error)
 	UpdateCustomer(customer *models.Customer) error
 	DeleteCustomer(id uint) error
+	CheckUserHasAccessToCustomer(userID uuid.UUID, customerID uuid.UUID) (bool, error)
 }
 
 type customerRepository struct {
 	db *gorm.DB
 }
 
-func NewCustomerRepository (db *gorm.DB) CustomerRepository {
+func NewCustomerRepository(db *gorm.DB) CustomerRepository {
 	return &customerRepository{db}
 }
 
@@ -60,4 +62,13 @@ func (r *customerRepository) UpdateCustomer(customer *models.Customer) error {
 
 func (r *customerRepository) DeleteCustomer(id uint) error {
 	return r.db.Delete(&models.Customer{}, id).Error
+}
+
+func (r *customerRepository) CheckUserHasAccessToCustomer(userID uuid.UUID, customerID uuid.UUID) (bool, error) {
+	var userCustomer models.UserCustomer
+	err := r.db.Where("user_id = ? AND customer_id = ?", userID, customerID).First(&userCustomer).Error
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
