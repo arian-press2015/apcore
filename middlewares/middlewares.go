@@ -10,6 +10,8 @@ import (
 var Module = fx.Options(
 	fx.Provide(NewMiddlewares),
 	fx.Provide(NewJWTAuthMiddleware),
+	fx.Provide(NewCustomerAccessMiddleware),
+	fx.Provide(NewAuthorizationMiddleware),
 )
 
 type Middlewares struct {
