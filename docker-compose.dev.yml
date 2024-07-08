@@ -20,6 +20,10 @@ services:
       - JWT_EXPIRE_AT=24h
       - LOGGER_ELASTIC_ENABLED=false
       - LOGGER_FILE_ENABLED=true
+      - ELASTICSEARCH_URL=
+      - ELASTICSEARCH_USERNAME=
+      - ELASTICSEARCH_PASSWORD=
+      - ELASTICSEARCH_INDEX=
       - REDIS_URL=redis:6379
       - SMS_API_URL=https://api.sms.ir
       - SMS_API_KEY=fhX610bkEUgapa3bDRgK0ucx98tuXGoM5r2X9SFsEyBHmVjpeelDue6T81cQTiIX

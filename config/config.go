@@ -46,8 +46,11 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	if err := godotenv.Load(); err != nil {
-		log.Printf("No .env file found")
+	env := getEnv("ENV", "development")
+	if env != "production" {
+		if err := godotenv.Load(); err != nil {
+			log.Printf("No .env file found")
+		}
 	}
 
 	config := &Config{}
