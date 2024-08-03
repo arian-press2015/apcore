@@ -36,8 +36,9 @@ type Config struct {
 		Url string
 	}
 	Jwt struct {
-		JwtSecret   string
-		JwtExpireAt string
+		JwtSecret       string
+		JwtExpireAt     string
+		RefreshExpireAt string
 	}
 	Sms struct {
 		ApiUrl     string
@@ -78,6 +79,7 @@ func NewConfig() *Config {
 	// jwt config
 	config.Jwt.JwtSecret = getEnv("JWT_SECRET", "defaultsecret")
 	config.Jwt.JwtExpireAt = getEnv("JWT_EXPIRE_AT", "24h")
+	config.Jwt.RefreshExpireAt = getEnv("REFRESH_EXPIRE_AT", "72h")
 	// sms config
 	config.Sms.ApiUrl = mustGetEnv("SMS_API_URL")
 	config.Sms.ApiKey = mustGetEnv("SMS_API_KEY")

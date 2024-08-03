@@ -8,13 +8,19 @@ import (
 )
 
 type JWTService struct {
-	jwtKey      []byte
-	jwtExpireAt time.Duration
+	jwtKey          []byte
+	jwtExpireAt     time.Duration
+	refreshExpireAt time.Duration
 }
 
 type Claims struct {
 	Phone string `json:"phone"`
 	jwt.StandardClaims
+}
+
+type AuthMessage struct {
+	AccessToken  string
+	RefreshToken string
 }
 
 func NewJWTService(cfg *config.Config) (*JWTService, error) {
@@ -24,18 +30,45 @@ func NewJWTService(cfg *config.Config) (*JWTService, error) {
 		return nil, err
 	}
 
+	refreshExpireDuration, err := time.ParseDuration(cfg.Jwt.RefreshExpireAt)
+	if err != nil {
+		return nil, err
+	}
+
 	return &JWTService{
-		jwtKey:      jwtKey,
-		jwtExpireAt: expireDuration,
+		jwtKey:          jwtKey,
+		jwtExpireAt:     expireDuration,
+		refreshExpireAt: refreshExpireDuration,
 	}, nil
 }
 
-func (s *JWTService) GenerateJWT(phone string) (string, error) {
-	expirationTime := time.Now().Add(s.jwtExpireAt)
+func (s *JWTService) GenerateToken(phone string) (*AuthMessage, error) {
+	accessExpireAt := time.Now().Add(s.jwtExpireAt)
+	refreshExpireAt := time.Now().Add(s.refreshExpireAt)
+
+	accessToken, err := s.GenerateJWT(phone, accessExpireAt)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := s.GenerateJWT(phone, refreshExpireAt)
+	if err != nil {
+		return nil, err
+	}
+
+	auth := &AuthMessage{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+
+	return auth, nil
+}
+
+func (s *JWTService) GenerateJWT(phone string, expireAt time.Time) (string, error) {
 	claims := &Claims{
 		Phone: phone,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
+			ExpiresAt: expireAt.Unix(),
 		},
 	}
 
