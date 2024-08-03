@@ -1,8 +1,10 @@
 package middlewares
 
 import (
+	"apcore/config"
 	"apcore/logger"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
 )
@@ -16,13 +18,15 @@ var Module = fx.Options(
 
 type Middlewares struct {
 	logger *logger.Logger
+	cfg    *config.Config
 }
 
-func NewMiddlewares(logger *logger.Logger) *Middlewares {
-	return &Middlewares{logger: logger}
+func NewMiddlewares(logger *logger.Logger, cfg *config.Config) *Middlewares {
+	return &Middlewares{logger: logger, cfg: cfg}
 }
 
 func (m *Middlewares) SetupMiddlewares(router *gin.Engine) {
+	router.Use(cors.New(GetCorsConfig(m.cfg)))
 	router.Use(TrackIdMiddleware())
 	router.Use(LocaleMiddleware())
 	router.Use(RecoveryMiddleware(m.logger))
