@@ -5,9 +5,15 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
-func GetCorsConfig(cfg *config.Config) cors.Config {
+func CorsMiddleware(cfg *config.Config) gin.HandlerFunc {
+	corsConfig := getCorsConfig(cfg)
+	return cors.New(corsConfig)
+}
+
+func getCorsConfig(cfg *config.Config) cors.Config {
 	corsConfig := cors.Config{
 		AllowOrigins:     []string{cfg.CorsEndpoint},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
