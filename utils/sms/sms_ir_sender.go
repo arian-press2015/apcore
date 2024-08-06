@@ -79,6 +79,7 @@ func (s *SmsIrSender) SendSms(phone string, templateId int, params []SmsRequestP
 }
 
 func (s *SmsIrSender) SendLoginOtp(otp string, phone string) error {
+	fmt.Println("api url:", s.apiUrl, s.apiKey, s.lineNumber)
 	params := []SmsRequestParams{
 		{Name: "CODE", Value: otp},
 	}
