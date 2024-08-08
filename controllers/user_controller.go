@@ -31,7 +31,13 @@ func (ctrl *UserController) GetUsers(c *gin.Context) {
 }
 
 func (ctrl *UserController) GetUserById(c *gin.Context) {
-	uuid := c.Param("uuid")
+	uuidStr := c.Param("uuid")
+	uuid, err := parsers.ParseUUID(uuidStr)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgBadRequest, http.StatusBadRequest)
+		return
+	}
 
 	user, err := ctrl.service.GetUserByID(uuid)
 	if err != nil {

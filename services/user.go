@@ -3,12 +3,14 @@ package services
 import (
 	"apcore/models"
 	"apcore/repositories"
+
+	"github.com/google/uuid"
 )
 
 type UserService interface {
 	CreateUser(user *models.User) error
 	GetUsers(offset int, limit int) ([]models.User, error)
-	GetUserByID(uuid string) (*models.User, error)
+	GetUserByID(uuid uuid.UUID) (*models.User, error)
 	GetUserByPhone(phone string) (*models.User, error)
 	UpdateUser(user *models.User) error
 	DeleteUser(id uint) error
@@ -30,7 +32,7 @@ func (s *userService) GetUsers(offset int, limit int) ([]models.User, error) {
 	return s.repo.GetUsers(offset, limit)
 }
 
-func (s *userService) GetUserByID(uuid string) (*models.User, error) {
+func (s *userService) GetUserByID(uuid uuid.UUID) (*models.User, error) {
 	return s.repo.GetUserByID(uuid)
 }
 

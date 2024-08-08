@@ -3,13 +3,14 @@ package repositories
 import (
 	"apcore/models"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type UserRepository interface {
 	CreateUser(user *models.User) error
 	GetUsers(offset int, limit int) ([]models.User, error)
-	GetUserByID(uuid string) (*models.User, error)
+	GetUserByID(uuid uuid.UUID) (*models.User, error)
 	GetUserByPhone(username string) (*models.User, error)
 	UpdateUser(user *models.User) error
 	DeleteUser(id uint) error
@@ -35,7 +36,7 @@ func (r *userRepository) GetUsers(offset int, limit int) ([]models.User, error) 
 	return users, nil
 }
 
-func (r *userRepository) GetUserByID(uuid string) (*models.User, error) {
+func (r *userRepository) GetUserByID(uuid uuid.UUID) (*models.User, error) {
 	var user models.User
 	err := r.db.Where("id = ?", uuid).First(&user).Error
 	if err != nil {
