@@ -3,17 +3,18 @@ package repositories
 import (
 	"apcore/models"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type AdminRepository interface {
 	CreateAdmin(admin *models.Admin) error
 	GetAdmins(offset int, limit int) ([]models.Admin, error)
-	GetAdminByID(id uint) (*models.Admin, error)
+	GetAdminByID(id uuid.UUID) (*models.Admin, error)
 	GetAdminByName(name string) (*models.Admin, error)
 	GetAdminByPhone(phone string) (*models.Admin, error)
 	UpdateAdmin(admin *models.Admin) error
-	DeleteAdmin(id uint) error
+	DeleteAdmin(id uuid.UUID) error
 }
 type adminRepository struct {
 	db *gorm.DB
@@ -36,7 +37,7 @@ func (r *adminRepository) GetAdmins(offset int, limit int) ([]models.Admin, erro
 	return admins, nil
 }
 
-func (r *adminRepository) GetAdminByID(id uint) (*models.Admin, error) {
+func (r *adminRepository) GetAdminByID(id uuid.UUID) (*models.Admin, error) {
 	var admin models.Admin
 	err := r.db.First(&admin, id).Error
 	if err != nil {
@@ -67,6 +68,6 @@ func (r *adminRepository) UpdateAdmin(admin *models.Admin) error {
 	return r.db.Save(admin).Error
 }
 
-func (r *adminRepository) DeleteAdmin(id uint) error {
+func (r *adminRepository) DeleteAdmin(id uuid.UUID) error {
 	return r.db.Delete(&models.Admin{}, id).Error
 }

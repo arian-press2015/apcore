@@ -13,7 +13,7 @@ type UserService interface {
 	GetUserByID(uuid uuid.UUID) (*models.User, error)
 	GetUserByPhone(phone string) (*models.User, error)
 	UpdateUser(user *models.User) error
-	DeleteUser(id uint) error
+	DeleteUser(id uuid.UUID) error
 }
 
 type userService struct {
@@ -44,6 +44,6 @@ func (s *userService) UpdateUser(user *models.User) error {
 	return s.repo.UpdateUser(user)
 }
 
-func (s *userService) DeleteUser(id uint) error {
+func (s *userService) DeleteUser(id uuid.UUID) error {
 	return s.repo.DeleteUser(id)
 }

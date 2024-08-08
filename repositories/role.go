@@ -3,16 +3,17 @@ package repositories
 import (
 	"apcore/models"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type RoleRepository interface {
 	CreateRole(role *models.Role) error
 	GetRoles(offset int, limit int) ([]models.Role, error)
-	GetRoleByID(id uint) (*models.Role, error)
+	GetRoleByID(id uuid.UUID) (*models.Role, error)
 	GetRoleByName(Name string) (*models.Role, error)
 	UpdateRole(role *models.Role) error
-	DeleteRole(id uint) error
+	DeleteRole(id uuid.UUID) error
 }
 type roleRepository struct {
 	db *gorm.DB
@@ -35,7 +36,7 @@ func (r *roleRepository) GetRoles(offset int, limit int) ([]models.Role, error) 
 	return roles, nil
 }
 
-func (r *roleRepository) GetRoleByID(id uint) (*models.Role, error) {
+func (r *roleRepository) GetRoleByID(id uuid.UUID) (*models.Role, error) {
 	var role models.Role
 	err := r.db.First(&role, id).Error
 	if err != nil {
@@ -57,6 +58,6 @@ func (r *roleRepository) UpdateRole(role *models.Role) error {
 	return r.db.Save(role).Error
 }
 
-func (r *roleRepository) DeleteRole(id uint) error {
+func (r *roleRepository) DeleteRole(id uuid.UUID) error {
 	return r.db.Delete(&models.Role{}, id).Error
 }

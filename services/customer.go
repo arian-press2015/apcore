@@ -3,6 +3,8 @@ package services
 import (
 	"apcore/models"
 	"apcore/repositories"
+
+	"github.com/google/uuid"
 )
 
 type CustomerService interface {
@@ -11,7 +13,7 @@ type CustomerService interface {
 	GetCustomerByID(uuid string) (*models.Customer, error)
 	GetCustomerByName(name string) (*models.Customer, error)
 	UpdateCustomer(customer *models.Customer) error
-	DeleteCustomer(id uint) error
+	DeleteCustomer(id uuid.UUID) error
 }
 
 type customerService struct {
@@ -42,6 +44,6 @@ func (s *customerService) UpdateCustomer(customer *models.Customer) error {
 	return s.repo.UpdateCustomer(customer)
 }
 
-func (s *customerService) DeleteCustomer(id uint) error {
+func (s *customerService) DeleteCustomer(id uuid.UUID) error {
 	return s.repo.DeleteCustomer(id)
 }

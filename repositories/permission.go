@@ -10,10 +10,10 @@ import (
 type PermissionRepository interface {
 	CreatePermission(permission *models.Permission) error
 	GetPermissions(offset int, limit int) ([]models.Permission, error)
-	GetPermissionByID(id uint) (*models.Permission, error)
+	GetPermissionByID(id uuid.UUID) (*models.Permission, error)
 	GetPermissionByName(Name string) (*models.Permission, error)
 	UpdatePermission(permission *models.Permission) error
-	DeletePermission(id uint) error
+	DeletePermission(id uuid.UUID) error
 	HasUserSomePermission(userID uuid.UUID, permissionName string) (bool, error)
 }
 type permissionRepository struct {
@@ -37,7 +37,7 @@ func (r *permissionRepository) GetPermissions(offset int, limit int) ([]models.P
 	return permissions, nil
 }
 
-func (r *permissionRepository) GetPermissionByID(id uint) (*models.Permission, error) {
+func (r *permissionRepository) GetPermissionByID(id uuid.UUID) (*models.Permission, error) {
 	var permission models.Permission
 	err := r.db.First(&permission, id).Error
 	if err != nil {
@@ -59,7 +59,7 @@ func (r *permissionRepository) UpdatePermission(permission *models.Permission) e
 	return r.db.Save(permission).Error
 }
 
-func (r *permissionRepository) DeletePermission(id uint) error {
+func (r *permissionRepository) DeletePermission(id uuid.UUID) error {
 	return r.db.Delete(&models.Permission{}, id).Error
 }
 
