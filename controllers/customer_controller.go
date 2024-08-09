@@ -120,15 +120,88 @@ func (ctrl *CustomerController) UpdateCustomer(c *gin.Context) {
 }
 
 func (ctrl *CustomerController) GetAlbum(c *gin.Context) {
-	response.Success(c, gin.H{"hi": "bye"}, messages.MsgSuccessful, nil, http.StatusOK)
+	offset, limit := parsers.ParsePaginationParams(c.Query("offset"), c.Query("limit"))
+
+	slug := c.Param("slug")
+	owner, err := ctrl.service.GetCustomerBySlug(slug)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	album, err := ctrl.service.GetAlbum(offset, limit, owner.ID)
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	count, err := ctrl.service.GetAlbumCount()
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	pagination := &response.Pagination{
+		Offset: offset,
+		Limit:  limit,
+		Count:  count,
+	}
+
+	response.Success(c, album, messages.MsgSuccessful, pagination, http.StatusOK)
+}
+
+type CreateAlbumBody struct {
+	Name string `json:"name"`
 }
 
 func (ctrl *CustomerController) AddToAlbum(c *gin.Context) {
-	response.Success(c, gin.H{"hi": "bye"}, messages.MsgSuccessful, nil, http.StatusOK)
+	var input CreateCustomerBody
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, nil, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	slug := c.Param("slug")
+	owner, err := ctrl.service.GetCustomerBySlug(slug)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	newAlbum := &models.CustomerAlbum{
+		Name:    input.Name,
+		OwnerId: owner.ID,
+		Address: "/images/folan.jpg",
+	}
+
+	if err := ctrl.service.AddToAlbum(newAlbum); err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	response.Success(c, newAlbum, messages.MsgSuccessful, nil, http.StatusCreated)
 }
 
 func (ctrl *CustomerController) DeleteFromAlbum(c *gin.Context) {
+	slug := c.Param("slug")
 	imageName := c.Param("imageName")
 
-	response.Success(c, gin.H{"hi": imageName}, messages.MsgSuccessful, nil, http.StatusOK)
+	owner, err := ctrl.service.GetCustomerBySlug(slug)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	err = ctrl.service.DeleteFromAlbum(imageName, owner.ID)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	response.Success(c, nil, messages.MsgSuccessful, nil, http.StatusOK)
 }
