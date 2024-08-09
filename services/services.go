@@ -7,4 +7,5 @@ var Module = fx.Options(
 	fx.Provide(NewUserService),
 	fx.Provide(NewRoleService),
 	fx.Provide(NewCustomerService),
+	fx.Provide(NewNotificationService),
 )

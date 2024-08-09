@@ -7,4 +7,5 @@ var Module = fx.Options(
 	fx.Provide(NewUserRepository),
 	fx.Provide(NewRoleRepository),
 	fx.Provide(NewCustomerRepository),
+	fx.Provide(NewNotificationRepository),
 )
