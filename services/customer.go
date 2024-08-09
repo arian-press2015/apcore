@@ -12,7 +12,7 @@ type CustomerService interface {
 	GetCustomers(offset int, limit int) ([]models.Customer, error)
 	GetCustomerCount() (int64, error)
 	GetCustomerByID(uuid string) (*models.Customer, error)
-	GetCustomerByName(name string) (*models.Customer, error)
+	GetCustomerBySlug(slug string) (*models.Customer, error)
 	UpdateCustomer(customer *models.Customer) error
 	DeleteCustomer(id uuid.UUID) error
 }
@@ -41,8 +41,8 @@ func (s *customerService) GetCustomerByID(uuid string) (*models.Customer, error)
 	return s.repo.GetCustomerByID(uuid)
 }
 
-func (s *customerService) GetCustomerByName(name string) (*models.Customer, error) {
-	return s.repo.GetCustomerByName(name)
+func (s *customerService) GetCustomerBySlug(slug string) (*models.Customer, error) {
+	return s.repo.GetCustomerBySlug(slug)
 }
 
 func (s *customerService) UpdateCustomer(customer *models.Customer) error {

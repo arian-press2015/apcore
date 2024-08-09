@@ -12,7 +12,7 @@ type CustomerRepository interface {
 	GetCustomers(offset int, limit int) ([]models.Customer, error)
 	GetCustomerCount() (int64, error)
 	GetCustomerByID(uuid string) (*models.Customer, error)
-	GetCustomerByName(name string) (*models.Customer, error)
+	GetCustomerBySlug(slug string) (*models.Customer, error)
 	UpdateCustomer(customer *models.Customer) error
 	DeleteCustomer(id uuid.UUID) error
 	CheckUserHasAccessToCustomer(userID uuid.UUID, customerID uuid.UUID) (bool, error)
@@ -58,9 +58,9 @@ func (r *customerRepository) GetCustomerByID(uuid string) (*models.Customer, err
 	return &customer, nil
 }
 
-func (r *customerRepository) GetCustomerByName(name string) (*models.Customer, error) {
+func (r *customerRepository) GetCustomerBySlug(slug string) (*models.Customer, error) {
 	var customer models.Customer
-	err := r.db.Where("name = ?", name).First(&customer).Error
+	err := r.db.Where("slug = ?", slug).First(&customer).Error
 	if err != nil {
 		return nil, err
 	}
