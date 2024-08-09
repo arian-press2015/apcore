@@ -10,6 +10,7 @@ import (
 type CustomerRepository interface {
 	CreateCustomer(customer *models.Customer) error
 	GetCustomers(offset int, limit int) ([]models.Customer, error)
+	GetCustomerCount() (int64, error)
 	GetCustomerByID(uuid string) (*models.Customer, error)
 	GetCustomerByName(name string) (*models.Customer, error)
 	UpdateCustomer(customer *models.Customer) error
@@ -36,6 +37,16 @@ func (r *customerRepository) GetCustomers(offset int, limit int) ([]models.Custo
 		return nil, err
 	}
 	return customers, nil
+}
+
+func (r *customerRepository) GetCustomerCount() (int64, error) {
+	var count int64
+	err := r.db.Model(&models.Customer{}).Count(&count).Error
+
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func (r *customerRepository) GetCustomerByID(uuid string) (*models.Customer, error) {

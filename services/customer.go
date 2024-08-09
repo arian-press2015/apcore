@@ -10,6 +10,7 @@ import (
 type CustomerService interface {
 	CreateCustomer(customer *models.Customer) error
 	GetCustomers(offset int, limit int) ([]models.Customer, error)
+	GetCustomerCount() (int64, error)
 	GetCustomerByID(uuid string) (*models.Customer, error)
 	GetCustomerByName(name string) (*models.Customer, error)
 	UpdateCustomer(customer *models.Customer) error
@@ -30,6 +31,10 @@ func (s *customerService) CreateCustomer(customer *models.Customer) error {
 
 func (s *customerService) GetCustomers(offset int, limit int) ([]models.Customer, error) {
 	return s.repo.GetCustomers(offset, limit)
+}
+
+func (s *customerService) GetCustomerCount() (int64, error) {
+	return s.repo.GetCustomerCount()
 }
 
 func (s *customerService) GetCustomerByID(uuid string) (*models.Customer, error) {
