@@ -17,7 +17,7 @@ type CustomerRepository interface {
 	DeleteCustomer(id uuid.UUID) error
 	CheckUserHasAccessToCustomer(userID uuid.UUID, customerID uuid.UUID) (bool, error)
 	GetAlbum(offset int, limit int, ownerID uuid.UUID) ([]models.CustomerAlbum, error)
-	GetAlbumCount() (int64, error)
+	GetAlbumCount(ownerID uuid.UUID) (int64, error)
 	AddToAlbum(album *models.CustomerAlbum) error
 	DeleteFromAlbum(imageName string, ownerID uuid.UUID) error
 }
@@ -97,9 +97,9 @@ func (r *customerRepository) GetAlbum(offset int, limit int, ownerID uuid.UUID) 
 	return album, nil
 }
 
-func (r *customerRepository) GetAlbumCount() (int64, error) {
+func (r *customerRepository) GetAlbumCount(ownerID uuid.UUID) (int64, error) {
 	var count int64
-	err := r.db.Model(&models.CustomerAlbum{}).Count(&count).Error
+	err := r.db.Model(&models.CustomerAlbum{}).Where("owner_id = ?", ownerID).Count(&count).Error
 
 	if err != nil {
 		return 0, err

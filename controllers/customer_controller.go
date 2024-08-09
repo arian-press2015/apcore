@@ -136,7 +136,7 @@ func (ctrl *CustomerController) GetAlbum(c *gin.Context) {
 		return
 	}
 
-	count, err := ctrl.service.GetAlbumCount()
+	count, err := ctrl.service.GetAlbumCount(owner.ID)
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
