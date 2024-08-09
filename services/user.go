@@ -14,6 +14,10 @@ type UserService interface {
 	GetUserByPhone(phone string) (*models.User, error)
 	UpdateUser(user *models.User) error
 	DeleteUser(id uuid.UUID) error
+	GetFavorites(offset int, limit int, userID uuid.UUID) ([]models.Favorites, error)
+	GetFavoritesCount(userID uuid.UUID) (int64, error)
+	AddToFavorites(favorite *models.Favorites) error
+	DeleteFromFavorites(customerID uuid.UUID, userID uuid.UUID) error
 }
 
 type userService struct {
@@ -46,4 +50,20 @@ func (s *userService) UpdateUser(user *models.User) error {
 
 func (s *userService) DeleteUser(id uuid.UUID) error {
 	return s.repo.DeleteUser(id)
+}
+
+func (s *userService) GetFavorites(offset int, limit int, userID uuid.UUID) ([]models.Favorites, error) {
+	return s.repo.GetFavorites(offset, limit, userID)
+}
+
+func (s *userService) GetFavoritesCount(userID uuid.UUID) (int64, error) {
+	return s.repo.GetFavoritesCount(userID)
+}
+
+func (s *userService) AddToFavorites(favorite *models.Favorites) error {
+	return s.repo.AddToFavorites(favorite)
+}
+
+func (s *userService) DeleteFromFavorites(customerID uuid.UUID, userID uuid.UUID) error {
+	return s.repo.DeleteFromFavorites(customerID, userID)
 }

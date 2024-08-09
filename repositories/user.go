@@ -14,6 +14,10 @@ type UserRepository interface {
 	GetUserByPhone(username string) (*models.User, error)
 	UpdateUser(user *models.User) error
 	DeleteUser(id uuid.UUID) error
+	GetFavorites(offset int, limit int, userID uuid.UUID) ([]models.Favorites, error)
+	GetFavoritesCount(userID uuid.UUID) (int64, error)
+	AddToFavorites(favorite *models.Favorites) error
+	DeleteFromFavorites(customerID uuid.UUID, userID uuid.UUID) error
 }
 type userRepository struct {
 	db *gorm.DB
@@ -60,4 +64,31 @@ func (r *userRepository) UpdateUser(user *models.User) error {
 
 func (r *userRepository) DeleteUser(id uuid.UUID) error {
 	return r.db.Delete(&models.User{}, id).Error
+}
+
+func (r *userRepository) GetFavorites(offset int, limit int, userID uuid.UUID) ([]models.Favorites, error) {
+	var favorites []models.Favorites
+	err := r.db.Where("user_id = ?", userID).Offset(offset).Limit(limit).Preload("Customer").Find(&favorites).Error
+	if err != nil {
+		return nil, err
+	}
+	return favorites, nil
+}
+
+func (r *userRepository) GetFavoritesCount(userID uuid.UUID) (int64, error) {
+	var count int64
+	err := r.db.Model(&models.Favorites{}).Where("user_id = ?", userID).Count(&count).Error
+
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (r *userRepository) AddToFavorites(favorite *models.Favorites) error {
+	return r.db.Create(favorite).Error
+}
+
+func (r *userRepository) DeleteFromFavorites(customerID uuid.UUID, userID uuid.UUID) error {
+	return r.db.Unscoped().Where("customer_id = ? AND user_id = ?", customerID, userID).Delete(&models.Favorites{}).Error
 }

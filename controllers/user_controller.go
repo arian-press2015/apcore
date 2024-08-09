@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"apcore/messages"
+	"apcore/models"
 	"apcore/response"
 	"apcore/services"
+	"apcore/utils"
 	"apcore/utils/parsers"
 	"net/http"
 
@@ -102,13 +104,101 @@ func (ctrl *UserController) UpdateCurrentUser(c *gin.Context) {
 }
 
 func (ctrl *UserController) GetFavorites(c *gin.Context) {
-	response.Success(c, gin.H{"hi": "bye"}, messages.MsgSuccessful, nil, http.StatusOK)
+	offset, limit := parsers.ParsePaginationParams(c.Query("offset"), c.Query("limit"))
+
+	userID, err := parsers.ParseUUIDFromContext(c, "userID")
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		c.Abort()
+		return
+	}
+
+	favorites, err := ctrl.service.GetFavorites(offset, limit, userID)
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	count, err := ctrl.service.GetFavoritesCount(userID)
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	pagination := &response.Pagination{
+		Offset: offset,
+		Limit:  limit,
+		Count:  count,
+	}
+
+	response.Success(c, favorites, messages.MsgSuccessful, pagination, http.StatusOK)
+}
+
+type CreateFavoriteBody struct {
+	CustomerID string `json:"customer_id"`
 }
 
 func (ctrl *UserController) AddToFavorites(c *gin.Context) {
-	response.Success(c, gin.H{"hi": "bye"}, messages.MsgSuccessful, nil, http.StatusOK)
+	var input CreateFavoriteBody
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, nil, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	userID, err := parsers.ParseUUIDFromContext(c, "userID")
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		c.Abort()
+		return
+	}
+
+	customerID, err := utils.UUIDParser(input.CustomerID)
+	if err != nil {
+		response.Error(c, nil, messages.MsgBadRequest, http.StatusBadRequest)
+		c.Abort()
+		return
+	}
+
+	newFavorite := &models.Favorites{
+		UserID:     userID,
+		CustomerID: customerID,
+	}
+
+	if err := ctrl.service.AddToFavorites(newFavorite); err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	response.Success(c, newFavorite, messages.MsgSuccessful, nil, http.StatusCreated)
 }
 
 func (ctrl *UserController) DeleteFromFavorites(c *gin.Context) {
-	response.Success(c, gin.H{"hi": "bye"}, messages.MsgSuccessful, nil, http.StatusOK)
+	customerIDString := c.Param("customerID")
+
+	userID, err := parsers.ParseUUIDFromContext(c, "userID")
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		c.Abort()
+		return
+	}
+
+	customerID, err := utils.UUIDParser(customerIDString)
+	if err != nil {
+		response.Error(c, nil, messages.MsgBadRequest, http.StatusBadRequest)
+		c.Abort()
+		return
+	}
+
+	err = ctrl.service.DeleteFromFavorites(customerID, userID)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	response.Success(c, nil, messages.MsgSuccessful, nil, http.StatusOK)
 }

@@ -19,7 +19,7 @@ func UsersRoutes(router *gin.Engine, ctrl *controllers.UserController, jwtAuthMi
 	// favorites
 	users.GET("favorites", ctrl.GetFavorites)
 	users.POST("favorites", ctrl.AddToFavorites)
-	users.DELETE("favorites", ctrl.DeleteFromFavorites)
-	
+	users.DELETE("favorites/:customerID", ctrl.DeleteFromFavorites)
+
 	users.GET(":uuid", ctrl.GetUserById)
 }
