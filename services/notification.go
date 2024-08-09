@@ -10,6 +10,7 @@ import (
 type NotificationService interface {
 	CreateNotification(notification *models.Notification) error
 	GetNotifications(offset int, limit int) ([]models.Notification, error)
+	GetNotificationCount() (int64, error)
 	DeleteNotification(id uuid.UUID) error
 	MarkAsRead(id uuid.UUID) error
 	MarkAllAsRead() error
@@ -29,6 +30,10 @@ func (s *notificationService) CreateNotification(notification *models.Notificati
 
 func (s *notificationService) GetNotifications(offset int, limit int) ([]models.Notification, error) {
 	return s.repo.GetNotifications(offset, limit)
+}
+
+func (s *notificationService) GetNotificationCount() (int64, error) {
+	return s.repo.GetNotificationCount()
 }
 
 func (s *notificationService) DeleteNotification(id uuid.UUID) error {

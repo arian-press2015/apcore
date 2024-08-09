@@ -10,6 +10,7 @@ import (
 type NotificationRepository interface {
 	CreateNotification(notification *models.Notification) error
 	GetNotifications(offset int, limit int) ([]models.Notification, error)
+	GetNotificationCount() (int64, error)
 	DeleteNotification(id uuid.UUID) error
 	MarkAsRead(id uuid.UUID) error
 	MarkAllAsRead() error
@@ -34,6 +35,16 @@ func (r *notificationRepository) GetNotifications(offset int, limit int) ([]mode
 		return nil, err
 	}
 	return notifications, nil
+}
+
+func (s *notificationRepository) GetNotificationCount() (int64, error) {
+	var count int64
+	err := s.db.Model(&models.Notification{}).Count(&count).Error
+
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func (r *notificationRepository) DeleteNotification(id uuid.UUID) error {
