@@ -16,10 +16,6 @@ type CustomerRepository interface {
 	UpdateCustomer(customer *models.Customer) error
 	DeleteCustomer(id uuid.UUID) error
 	CheckUserHasAccessToCustomer(userID uuid.UUID, customerID uuid.UUID) (bool, error)
-	GetAlbum(offset int, limit int, ownerID uuid.UUID) ([]models.CustomerAlbum, error)
-	GetAlbumCount(ownerID uuid.UUID) (int64, error)
-	AddToAlbum(album *models.CustomerAlbum) error
-	DeleteFromAlbum(imageName string, ownerID uuid.UUID) error
 }
 
 type customerRepository struct {
@@ -86,31 +82,4 @@ func (r *customerRepository) CheckUserHasAccessToCustomer(userID uuid.UUID, cust
 		return false, err
 	}
 	return true, nil
-}
-
-func (r *customerRepository) GetAlbum(offset int, limit int, ownerID uuid.UUID) ([]models.CustomerAlbum, error) {
-	var album []models.CustomerAlbum
-	err := r.db.Where("owner_id = ?", ownerID).Offset(offset).Limit(limit).Find(&album).Error
-	if err != nil {
-		return nil, err
-	}
-	return album, nil
-}
-
-func (r *customerRepository) GetAlbumCount(ownerID uuid.UUID) (int64, error) {
-	var count int64
-	err := r.db.Model(&models.CustomerAlbum{}).Where("owner_id = ?", ownerID).Count(&count).Error
-
-	if err != nil {
-		return 0, err
-	}
-	return count, nil
-}
-
-func (r *customerRepository) AddToAlbum(album *models.CustomerAlbum) error {
-	return r.db.Create(album).Error
-}
-
-func (r *customerRepository) DeleteFromAlbum(name string, ownerID uuid.UUID) error {
-	return r.db.Unscoped().Where("name = ? AND owner_id = ?", name, ownerID).Delete(&models.CustomerAlbum{}).Error
 }

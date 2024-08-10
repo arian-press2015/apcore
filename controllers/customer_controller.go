@@ -12,11 +12,12 @@ import (
 )
 
 type CustomerController struct {
-	service services.CustomerService
+	cservice services.CustomerService
+	aservice services.AlbumService
 }
 
-func NewCustomerController(service services.CustomerService) *CustomerController {
-	return &CustomerController{service}
+func NewCustomerController(cservice services.CustomerService, aservice services.AlbumService) *CustomerController {
+	return &CustomerController{cservice, aservice}
 }
 
 type CreateCustomerBody struct {
@@ -41,7 +42,7 @@ func (ctrl *CustomerController) CreateCustomer(c *gin.Context) {
 		IsDisabled: false,
 	}
 
-	if err := ctrl.service.CreateCustomer(newCustomer); err != nil {
+	if err := ctrl.cservice.CreateCustomer(newCustomer); err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -52,13 +53,13 @@ func (ctrl *CustomerController) CreateCustomer(c *gin.Context) {
 func (ctrl *CustomerController) GetCustomers(c *gin.Context) {
 	offset, limit := parsers.ParsePaginationParams(c.Query("offset"), c.Query("limit"))
 
-	customers, err := ctrl.service.GetCustomers(offset, limit)
+	customers, err := ctrl.cservice.GetCustomers(offset, limit)
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
 
-	count, err := ctrl.service.GetCustomerCount()
+	count, err := ctrl.cservice.GetCustomerCount()
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
@@ -76,7 +77,7 @@ func (ctrl *CustomerController) GetCustomers(c *gin.Context) {
 func (ctrl *CustomerController) GetCustomerBySlug(c *gin.Context) {
 	slug := c.Param("slug")
 
-	customer, err := ctrl.service.GetCustomerBySlug(slug)
+	customer, err := ctrl.cservice.GetCustomerBySlug(slug)
 	if err != nil {
 		response.Error(c, nil, messages.MsgNotFound, http.StatusNotFound)
 		return
@@ -101,7 +102,7 @@ func (ctrl *CustomerController) UpdateCustomer(c *gin.Context) {
 
 	slug := c.Param("slug")
 
-	existingCustomer, err := ctrl.service.GetCustomerBySlug(slug)
+	existingCustomer, err := ctrl.cservice.GetCustomerBySlug(slug)
 	if err != nil {
 		response.Error(c, nil, "Customer not found", http.StatusNotFound)
 		return
@@ -111,7 +112,7 @@ func (ctrl *CustomerController) UpdateCustomer(c *gin.Context) {
 	existingCustomer.Details = input.Details
 	existingCustomer.Phone = input.Phone
 
-	if err := ctrl.service.UpdateCustomer(existingCustomer); err != nil {
+	if err := ctrl.cservice.UpdateCustomer(existingCustomer); err != nil {
 		response.Error(c, nil, "Failed to update customer", http.StatusInternalServerError)
 		return
 	}
@@ -123,20 +124,20 @@ func (ctrl *CustomerController) GetAlbum(c *gin.Context) {
 	offset, limit := parsers.ParsePaginationParams(c.Query("offset"), c.Query("limit"))
 
 	slug := c.Param("slug")
-	owner, err := ctrl.service.GetCustomerBySlug(slug)
+	owner, err := ctrl.cservice.GetCustomerBySlug(slug)
 
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
 
-	album, err := ctrl.service.GetAlbum(offset, limit, owner.ID)
+	album, err := ctrl.aservice.GetAlbum(offset, limit, owner.ID)
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
 
-	count, err := ctrl.service.GetAlbumCount(owner.ID)
+	count, err := ctrl.aservice.GetAlbumCount(owner.ID)
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
@@ -164,7 +165,7 @@ func (ctrl *CustomerController) AddToAlbum(c *gin.Context) {
 	}
 
 	slug := c.Param("slug")
-	owner, err := ctrl.service.GetCustomerBySlug(slug)
+	owner, err := ctrl.cservice.GetCustomerBySlug(slug)
 
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
@@ -177,7 +178,7 @@ func (ctrl *CustomerController) AddToAlbum(c *gin.Context) {
 		Address: "/images/folan.jpg",
 	}
 
-	if err := ctrl.service.AddToAlbum(newAlbum); err != nil {
+	if err := ctrl.aservice.AddToAlbum(newAlbum); err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
@@ -189,14 +190,14 @@ func (ctrl *CustomerController) DeleteFromAlbum(c *gin.Context) {
 	slug := c.Param("slug")
 	imageName := c.Param("imageName")
 
-	owner, err := ctrl.service.GetCustomerBySlug(slug)
+	owner, err := ctrl.cservice.GetCustomerBySlug(slug)
 
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
 
-	err = ctrl.service.DeleteFromAlbum(imageName, owner.ID)
+	err = ctrl.aservice.DeleteFromAlbum(imageName, owner.ID)
 
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
