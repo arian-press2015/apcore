@@ -58,7 +58,19 @@ func (ctrl *CustomerController) GetCustomers(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, customers, messages.MsgSuccessful, nil, http.StatusOK)
+	count, err := ctrl.service.GetCustomerCount()
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	pagination := &response.Pagination{
+		Offset: offset,
+		Limit:  limit,
+		Count:  count,
+	}
+
+	response.Success(c, customers, messages.MsgSuccessful, pagination, http.StatusOK)
 }
 
 func (ctrl *CustomerController) GetCustomerByName(c *gin.Context) {
