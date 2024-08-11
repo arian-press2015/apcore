@@ -112,5 +112,5 @@ func (r *customerRepository) AddToAlbum(album *models.CustomerAlbum) error {
 }
 
 func (r *customerRepository) DeleteFromAlbum(name string, ownerID uuid.UUID) error {
-	return r.db.Where("name = ? AND owner_id = ?", name, ownerID).Delete(&models.CustomerAlbum{}).Error
+	return r.db.Unscoped().Where("name = ? AND owner_id = ?", name, ownerID).Delete(&models.CustomerAlbum{}).Error
 }
