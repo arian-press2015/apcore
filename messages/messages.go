@@ -3,6 +3,7 @@ package messages
 const (
 	MsgNotFound             = "NotFound"
 	MsgUnauthorized         = "Unauthorized"
+	MsgBadRequest           = "BadRequest"
 	MsgInternalServerError  = "InternalServerError"
 	MsgSuccessful           = "Successful"
 	MsgInvalidPhonePassword = "Invalid phone or password"
