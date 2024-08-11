@@ -13,7 +13,14 @@ func CustomersRoutes(router *gin.Engine, ctrl *controllers.CustomerController, j
 	customers.GET("", ctrl.GetCustomers)
 	customers.GET(":slug", ctrl.GetCustomerBySlug)
 	customers.PUT(":slug", ctrl.UpdateCustomer)
+
+	// album
 	customers.GET(":slug/album", ctrl.GetAlbum)
 	customers.POST(":slug/album", ctrl.AddToAlbum)
 	customers.DELETE(":slug/album/:imageName", ctrl.DeleteFromAlbum)
+
+	// menu categories
+	customers.GET(":slug/menu", ctrl.GetMenu)
+	customers.POST(":slug/menu", ctrl.CreateMenu)
+	customers.PUT(":slug/menu", ctrl.UpdateMenu)
 }

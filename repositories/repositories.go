@@ -9,4 +9,5 @@ var Module = fx.Options(
 	fx.Provide(NewCustomerRepository),
 	fx.Provide(NewNotificationRepository),
 	fx.Provide(NewAlbumRepository),
+	fx.Provide(NewMenuRepository),
 )

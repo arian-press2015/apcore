@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"apcore/dto"
 	"apcore/messages"
 	"apcore/models"
 	"apcore/response"
@@ -14,10 +15,11 @@ import (
 type CustomerController struct {
 	cservice services.CustomerService
 	aservice services.AlbumService
+	mservice services.MenuService
 }
 
-func NewCustomerController(cservice services.CustomerService, aservice services.AlbumService) *CustomerController {
-	return &CustomerController{cservice, aservice}
+func NewCustomerController(cservice services.CustomerService, aservice services.AlbumService, mservice services.MenuService) *CustomerController {
+	return &CustomerController{cservice, aservice, mservice}
 }
 
 type CreateCustomerBody struct {
@@ -198,6 +200,76 @@ func (ctrl *CustomerController) DeleteFromAlbum(c *gin.Context) {
 	}
 
 	err = ctrl.aservice.DeleteFromAlbum(imageName, owner.ID)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	response.Success(c, nil, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+func (ctrl *CustomerController) GetMenu(c *gin.Context) {
+	slug := c.Param("slug")
+
+	customer, err := ctrl.cservice.GetCustomerBySlug(slug)
+	if err != nil {
+		response.Error(c, nil, "Customer not found", http.StatusNotFound)
+		return
+	}
+
+	menu, err := ctrl.mservice.GetMenu(customer.ID)
+	if err != nil {
+		response.Error(c, nil, messages.MsgNotFound, http.StatusNotFound)
+		return
+	}
+
+	response.Success(c, menu, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+func (ctrl *CustomerController) CreateMenu(c *gin.Context) {
+	var input dto.CreateMenuBody
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, nil, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	slug := c.Param("slug")
+	customer, err := ctrl.cservice.GetCustomerBySlug(slug)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	err = ctrl.mservice.CreateMenu(customer.ID, input)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	response.Success(c, nil, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+func (ctrl *CustomerController) UpdateMenu(c *gin.Context) {
+	var input dto.UpdateMenuBody
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, nil, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	slug := c.Param("slug")
+	customer, err := ctrl.cservice.GetCustomerBySlug(slug)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	err = ctrl.mservice.UpdateMenu(customer.ID, input)
 
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
