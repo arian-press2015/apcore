@@ -73,10 +73,10 @@ func (ctrl *CustomerController) GetCustomers(c *gin.Context) {
 	response.Success(c, customers, messages.MsgSuccessful, pagination, http.StatusOK)
 }
 
-func (ctrl *CustomerController) GetCustomerByName(c *gin.Context) {
-	name := c.Param("name")
+func (ctrl *CustomerController) GetCustomerBySlug(c *gin.Context) {
+	slug := c.Param("slug")
 
-	customer, err := ctrl.service.GetCustomerByName(name)
+	customer, err := ctrl.service.GetCustomerBySlug(slug)
 	if err != nil {
 		response.Error(c, nil, messages.MsgNotFound, http.StatusNotFound)
 		return
@@ -99,9 +99,9 @@ func (ctrl *CustomerController) UpdateCustomer(c *gin.Context) {
 		return
 	}
 
-	name := c.Param("name")
+	slug := c.Param("slug")
 
-	existingCustomer, err := ctrl.service.GetCustomerByName(name)
+	existingCustomer, err := ctrl.service.GetCustomerBySlug(slug)
 	if err != nil {
 		response.Error(c, nil, "Customer not found", http.StatusNotFound)
 		return

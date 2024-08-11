@@ -5,6 +5,7 @@ import "github.com/google/uuid"
 type Customer struct {
 	BaseModel
 	Name       string  `gorm:"not null" json:"name"`
+	Slug       string  `gorm:"unique;not null" json:"slug"`
 	Details    string  `json:"details"`
 	Phone      string  `gorm:"unique;not null" json:"phone"`
 	Logo       string  `json:"logo"`
