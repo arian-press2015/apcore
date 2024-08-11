@@ -5,6 +5,7 @@ import (
 	"apcore/response"
 	"apcore/services"
 	"apcore/utils/parsers"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +28,20 @@ func (ctrl *NotificationController) GetNotifications(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, notifications, messages.MsgSuccessful, nil, http.StatusOK)
+	count, err := ctrl.service.GetNotificationCount()
+	if err != nil {
+		fmt.Println(err)
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	pagination := &response.Pagination{
+		Offset: offset,
+		Limit:  limit,
+		Count:  count,
+	}
+
+	response.Success(c, notifications, messages.MsgSuccessful, pagination, http.StatusOK)
 }
 
 func (ctrl *NotificationController) MarkAsRead(c *gin.Context) {

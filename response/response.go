@@ -5,7 +5,7 @@ import "github.com/gin-gonic/gin"
 type Pagination struct {
 	Offset int `json:"offset"`
 	Limit  int `json:"limit"`
-	Count  int `json:"count"`
+	Count  int64 `json:"count"`
 }
 
 type SwaggerResponse[T any] struct {
