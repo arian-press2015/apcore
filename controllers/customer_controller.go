@@ -118,3 +118,17 @@ func (ctrl *CustomerController) UpdateCustomer(c *gin.Context) {
 
 	response.Success(c, existingCustomer, messages.MsgSuccessful, nil, http.StatusOK)
 }
+
+func (ctrl *CustomerController) GetAlbum(c *gin.Context) {
+	response.Success(c, gin.H{"hi": "bye"}, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+func (ctrl *CustomerController) AddToAlbum(c *gin.Context) {
+	response.Success(c, gin.H{"hi": "bye"}, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+func (ctrl *CustomerController) DeleteFromAlbum(c *gin.Context) {
+	imageName := c.Param("imageName")
+
+	response.Success(c, gin.H{"hi": imageName}, messages.MsgSuccessful, nil, http.StatusOK)
+}
