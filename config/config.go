@@ -12,9 +12,10 @@ var Module = fx.Options(
 )
 
 type Config struct {
-	Env      string
-	Port     string
-	Database struct {
+	Env          string
+	Port         string
+	CorsEndpoint string
+	Database     struct {
 		User     string
 		Password string
 		DBName   string
@@ -57,6 +58,7 @@ func NewConfig() *Config {
 	// app config
 	config.Env = getEnv("ENV", "development")
 	config.Port = getEnv("PORT", "8080")
+	config.CorsEndpoint = getEnv("CORS_ENDPOINT", "https://cafe-ro.com")
 	// database config
 	config.Database.User = getEnv("POSTGRES_USER", "root")
 	config.Database.Password = getEnv("POSTGRES_PASSWORD", "password")
