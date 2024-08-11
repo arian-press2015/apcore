@@ -4,7 +4,6 @@ import (
 	"apcore/config"
 	"apcore/logger"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
 )
@@ -26,7 +25,7 @@ func NewMiddlewares(logger *logger.Logger, cfg *config.Config) *Middlewares {
 }
 
 func (m *Middlewares) SetupMiddlewares(router *gin.Engine) {
-	router.Use(cors.New(GetCorsConfig(m.cfg)))
+	router.Use(CorsMiddleware(m.cfg))
 	router.Use(TrackIdMiddleware())
 	router.Use(LocaleMiddleware())
 	router.Use(RecoveryMiddleware(m.logger))
