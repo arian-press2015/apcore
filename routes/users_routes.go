@@ -11,7 +11,15 @@ func UsersRoutes(router *gin.Engine, ctrl *controllers.UserController, jwtAuthMi
 	users := router.Group("/users")
 	users.Use(jwtAuthMiddleware.Middleware())
 	users.GET("", ctrl.GetUsers)
+
+	// profile
 	users.GET("profile", ctrl.GetCurrentUser)
 	users.PUT("profile", ctrl.UpdateCurrentUser)
+
+	// favorites
+	users.GET("favorites", ctrl.GetFavorites)
+	users.POST("favorites", ctrl.AddToFavorites)
+	users.DELETE("favorites", ctrl.DeleteFromFavorites)
+	
 	users.GET(":uuid", ctrl.GetUserById)
 }

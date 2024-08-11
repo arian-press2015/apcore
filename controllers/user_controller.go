@@ -65,7 +65,7 @@ func (ctrl *UserController) GetCurrentUser(c *gin.Context) {
 }
 
 type UpdateProfileBody struct {
-	FullName string `json:"fullName" binding:"required"`
+	FullName     string `json:"fullName" binding:"required"`
 	ProfileImage string `json:"profileImage" binding:"required"`
 }
 
@@ -99,4 +99,16 @@ func (ctrl *UserController) UpdateCurrentUser(c *gin.Context) {
 	}
 
 	response.Success(c, user, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+func (ctrl *UserController) GetFavorites(c *gin.Context) {
+	response.Success(c, gin.H{"hi": "bye"}, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+func (ctrl *UserController) AddToFavorites(c *gin.Context) {
+	response.Success(c, gin.H{"hi": "bye"}, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+func (ctrl *UserController) DeleteFromFavorites(c *gin.Context) {
+	response.Success(c, gin.H{"hi": "bye"}, messages.MsgSuccessful, nil, http.StatusOK)
 }
