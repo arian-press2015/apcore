@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -71,6 +72,8 @@ func (s *SmsIrSender) SendSms(phone string, templateId int, params []SmsRequestP
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		fmt.Println("err", resp.StatusCode)
+		fmt.Println("err2", resp)
 		return errors.New("failed to send SMS")
 	}
 
