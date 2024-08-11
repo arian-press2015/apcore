@@ -64,6 +64,7 @@ func (ctrl *AuthController) Auth(c *gin.Context) {
 		newUser := &models.User{
 			FullName: "کاربر گرامی",
 			Phone:    input.Phone,
+			Nid:      nil,
 		}
 
 		if err := ctrl.service.CreateUser(newUser); err != nil {
