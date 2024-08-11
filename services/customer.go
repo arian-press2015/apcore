@@ -16,7 +16,7 @@ type CustomerService interface {
 	UpdateCustomer(customer *models.Customer) error
 	DeleteCustomer(id uuid.UUID) error
 	GetAlbum(offset int, limit int, ownerID uuid.UUID) ([]models.CustomerAlbum, error)
-	GetAlbumCount() (int64, error)
+	GetAlbumCount(ownerID uuid.UUID) (int64, error)
 	AddToAlbum(album *models.CustomerAlbum) error
 	DeleteFromAlbum(imageName string, ownerID uuid.UUID) error
 }
@@ -61,8 +61,8 @@ func (s *customerService) GetAlbum(offset int, limit int, ownerID uuid.UUID) ([]
 	return s.repo.GetAlbum(offset, limit, ownerID)
 }
 
-func (s *customerService) GetAlbumCount() (int64, error) {
-	return s.repo.GetAlbumCount()
+func (s *customerService) GetAlbumCount(ownerID uuid.UUID) (int64, error) {
+	return s.repo.GetAlbumCount(ownerID)
 }
 
 func (s *customerService) AddToAlbum(album *models.CustomerAlbum) error {
