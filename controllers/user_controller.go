@@ -45,5 +45,58 @@ func (ctrl *UserController) GetUserById(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, user, messages.MsgSuccessful, nil,http.StatusOK)
+	response.Success(c, user, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+func (ctrl *UserController) GetCurrentUser(c *gin.Context) {
+	uuid, err := parsers.ParseUUIDFromContext(c, "userID")
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	user, err := ctrl.service.GetUserByID(uuid)
+	if err != nil {
+		response.Error(c, nil, messages.MsgNotFound, http.StatusNotFound)
+		return
+	}
+
+	response.Success(c, user, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+type UpdateProfileBody struct {
+	FullName string `json:"fullName" binding:"required"`
+	ProfileImage string `json:"profileImage" binding:"required"`
+}
+
+func (ctrl *UserController) UpdateCurrentUser(c *gin.Context) {
+	var input UpdateProfileBody
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, nil, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	uuid, err := parsers.ParseUUIDFromContext(c, "userID")
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	user, err := ctrl.service.GetUserByID(uuid)
+	if err != nil {
+		response.Error(c, nil, messages.MsgNotFound, http.StatusNotFound)
+		return
+	}
+
+	user.FullName = input.FullName
+	user.ProfileImage = input.ProfileImage
+
+	err = ctrl.service.UpdateUser(user)
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	response.Success(c, user, messages.MsgSuccessful, nil, http.StatusOK)
 }
