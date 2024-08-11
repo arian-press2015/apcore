@@ -8,6 +8,7 @@ import (
 	"apcore/utils/jwt"
 	"apcore/utils/otp"
 	"apcore/utils/sms"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -82,6 +83,7 @@ func (ctrl *AuthController) Auth(c *gin.Context) {
 	err = ctrl.smsSender.SendLoginOtp(otp, user.Phone)
 	if err != nil {
 		response.Error(c, nil, "Failed to send OTP", http.StatusInternalServerError)
+		fmt.Println("err is: ", err)
 		return
 	}
 
