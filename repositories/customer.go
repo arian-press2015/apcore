@@ -13,7 +13,7 @@ type CustomerRepository interface {
 	GetCustomerByID(uuid string) (*models.Customer, error)
 	GetCustomerByName(name string) (*models.Customer, error)
 	UpdateCustomer(customer *models.Customer) error
-	DeleteCustomer(id uint) error
+	DeleteCustomer(id uuid.UUID) error
 	CheckUserHasAccessToCustomer(userID uuid.UUID, customerID uuid.UUID) (bool, error)
 }
 
@@ -60,7 +60,7 @@ func (r *customerRepository) UpdateCustomer(customer *models.Customer) error {
 	return r.db.Save(customer).Error
 }
 
-func (r *customerRepository) DeleteCustomer(id uint) error {
+func (r *customerRepository) DeleteCustomer(id uuid.UUID) error {
 	return r.db.Delete(&models.Customer{}, id).Error
 }
 

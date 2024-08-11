@@ -13,7 +13,7 @@ type UserRepository interface {
 	GetUserByID(uuid uuid.UUID) (*models.User, error)
 	GetUserByPhone(username string) (*models.User, error)
 	UpdateUser(user *models.User) error
-	DeleteUser(id uint) error
+	DeleteUser(id uuid.UUID) error
 }
 type userRepository struct {
 	db *gorm.DB
@@ -58,6 +58,6 @@ func (r *userRepository) UpdateUser(user *models.User) error {
 	return r.db.Save(user).Error
 }
 
-func (r *userRepository) DeleteUser(id uint) error {
+func (r *userRepository) DeleteUser(id uuid.UUID) error {
 	return r.db.Delete(&models.User{}, id).Error
 }
