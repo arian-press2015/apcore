@@ -32,7 +32,8 @@ func NewAuthController(service services.UserService, jwtService *jwt.JWTService,
 }
 
 type AuthMessage struct {
-	Token string `json:"token"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 type AuthBody struct {
@@ -121,11 +122,11 @@ func (ctrl *AuthController) VerifyAuth(c *gin.Context) {
 		return
 	}
 
-	token, err := ctrl.jwtService.GenerateJWT(user.Phone)
+	auth, err := ctrl.jwtService.GenerateToken(user.Phone)
 	if err != nil {
 		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
 		return
 	}
 
-	response.Success(c, gin.H{"token": token}, messages.MsgSuccessful, nil, http.StatusOK)
+	response.Success(c, gin.H{"accessToken": auth.AccessToken, "refreshToken": auth.RefreshToken}, messages.MsgSuccessful, nil, http.StatusOK)
 }

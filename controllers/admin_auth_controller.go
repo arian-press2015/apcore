@@ -62,13 +62,13 @@ func (ctrl *AdminAuthController) AdminLogin(c *gin.Context) {
 		return
 	}
 
-	token, err := ctrl.jwtService.GenerateJWT(admin.Phone)
+	auth, err := ctrl.jwtService.GenerateToken(admin.Phone)
 	if err != nil {
 		response.Error(c, nil, "Failed to generate JWT", http.StatusInternalServerError)
 		return
 	}
 
-	response.Success(c, gin.H{"token": token}, messages.MsgSuccessful, nil, http.StatusOK)
+	response.Success(c, gin.H{"accessToken": auth.AccessToken, "refreshToken": auth.RefreshToken}, messages.MsgSuccessful, nil, http.StatusOK)
 }
 
 // func (ctrl *AdminAuthController) CreateAdmin(c *gin.Context) {
