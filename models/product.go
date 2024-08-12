@@ -8,7 +8,7 @@ type Product struct {
 	Slug              string       `gorm:"unique;not null" json:"slug"`
 	Price             float64      `gorm:"not null" json:"price"`
 	CategoryID        uuid.UUID    `gorm:"type:uuid;not null" json:"category_id"`
-	ProductTemplateID uuid.UUID    `gorm:"type:uuid" json:"product_template_id"`
+	ProductTemplateID *uuid.UUID   `gorm:"type:uuid" json:"product_template_id"`
 	Ingredients       []Ingredient `gorm:"many2many:product_ingredients;" json:"ingredients"`
 }
 
