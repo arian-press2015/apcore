@@ -7,19 +7,22 @@ import (
 	"apcore/response"
 	"apcore/services"
 	"apcore/utils/parsers"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type CustomerController struct {
-	cservice services.CustomerService
-	aservice services.AlbumService
-	mservice services.MenuService
+	cservice  services.CustomerService
+	aservice  services.AlbumService
+	mservice  services.MenuService
+	c2service services.CategoryService
+	pservice  services.ProductService
 }
 
-func NewCustomerController(cservice services.CustomerService, aservice services.AlbumService, mservice services.MenuService) *CustomerController {
-	return &CustomerController{cservice, aservice, mservice}
+func NewCustomerController(cservice services.CustomerService, aservice services.AlbumService, mservice services.MenuService, c2service services.CategoryService, pservice services.ProductService) *CustomerController {
+	return &CustomerController{cservice, aservice, mservice, c2service, pservice}
 }
 
 type CreateCustomerBody struct {
@@ -277,4 +280,98 @@ func (ctrl *CustomerController) UpdateMenu(c *gin.Context) {
 	}
 
 	response.Success(c, nil, messages.MsgSuccessful, nil, http.StatusOK)
+}
+
+func (ctrl *CustomerController) GetCategoryProducts(c *gin.Context) {
+	offset, limit := parsers.ParsePaginationParams(c.Query("offset"), c.Query("limit"))
+
+	customerSlug := c.Param("slug")
+	customer, err := ctrl.cservice.GetCustomerBySlug(customerSlug)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	categorySlug := c.Param("categorySlug")
+	category, err := ctrl.c2service.GetCategoryBySlug(categorySlug, customer.ID)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println("later, i need to add this to GetProducts conditions struct", category.ID.String())
+	products, err := ctrl.pservice.GetProducts(offset, limit)
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	count, err := ctrl.pservice.GetProductCount()
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	pagination := &response.Pagination{
+		Offset: offset,
+		Limit:  limit,
+		Count:  count,
+	}
+
+	response.Success(c, products, messages.MsgSuccessful, pagination, http.StatusOK)
+}
+
+func (ctrl *CustomerController) GetProducts(c *gin.Context) {
+	offset, limit := parsers.ParsePaginationParams(c.Query("offset"), c.Query("limit"))
+
+	slug := c.Param("slug")
+	customer, err := ctrl.cservice.GetCustomerBySlug(slug)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println("later, i need to add this, and price filter to GetProducts conditions struct", customer.ID.String())
+	products, err := ctrl.pservice.GetProducts(offset, limit)
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	count, err := ctrl.pservice.GetProductCount()
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	pagination := &response.Pagination{
+		Offset: offset,
+		Limit:  limit,
+		Count:  count,
+	}
+
+	response.Success(c, products, messages.MsgSuccessful, pagination, http.StatusOK)
+}
+
+func (ctrl *CustomerController) GetProductBySlug(c *gin.Context) {
+	customerSlug := c.Param("slug")
+	customer, err := ctrl.cservice.GetCustomerBySlug(customerSlug)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	productSlug := c.Param("productSlug")
+	product, err := ctrl.pservice.GetProductBySlug(productSlug, customer.ID)
+
+	if err != nil {
+		response.Error(c, nil, messages.MsgInternalServerError, http.StatusInternalServerError)
+		return
+	}
+
+	response.Success(c, product, messages.MsgSuccessful, nil, http.StatusOK)
 }
