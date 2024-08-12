@@ -10,4 +10,7 @@ var Module = fx.Options(
 	fx.Provide(NewNotificationRepository),
 	fx.Provide(NewAlbumRepository),
 	fx.Provide(NewMenuRepository),
+	fx.Provide(NewCategoryRepository),
+	fx.Provide(NewProductRepository),
+	fx.Provide(NewIngredientRepository),
 )
