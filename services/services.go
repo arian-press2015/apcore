@@ -13,4 +13,5 @@ var Module = fx.Options(
 	fx.Provide(NewCategoryService),
 	fx.Provide(NewProductService),
 	fx.Provide(NewIngredientService),
+	fx.Provide(NewCommentService),
 )

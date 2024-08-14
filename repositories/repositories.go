@@ -13,4 +13,5 @@ var Module = fx.Options(
 	fx.Provide(NewCategoryRepository),
 	fx.Provide(NewProductRepository),
 	fx.Provide(NewIngredientRepository),
+	fx.Provide(NewCommentRepository),
 )
